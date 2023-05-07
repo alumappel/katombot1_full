@@ -1,0 +1,14 @@
+﻿
+<a href=@anchor class="goldBtn btn-primary" style="color: var(--white);padding: 2em; width: 7.5em; gap: 1em; text-align: right; color: var(--white); ">
+    <span class="@src" style="font-size:2em; color:var(--white)"></span>
+    @name
+</a>
+@code {
+    [Parameter]
+    public string anchor { get; set; }
+    [Parameter]
+    public string name { get; set; }
+    [Parameter]
+    public string src { get; set; }
+}
+

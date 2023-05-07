@@ -1,0 +1,17 @@
+﻿
+
+<button @onclick ="ChangeLog">11111111</button>
+
+@code {
+    [Parameter]
+    public bool log { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> logC { get; set; }
+
+    public void ChangeLog()
+    {
+        logC.InvokeAsync(log);
+    }
+
+}

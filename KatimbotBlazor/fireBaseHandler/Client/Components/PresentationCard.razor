@@ -1,0 +1,51 @@
+﻿@using fireBaseHandler.Shared.Entities
+@inject IJSRuntime JSRuntime
+@inject NavigationManager navigat
+@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+
+<div class="card border-0" style="width: 12em; height:15em;margin:0.5%;">
+    <div class="card-body">
+        <h5 class="card-title">@pName</h5>
+        <p class="card-text" style="font-size:12pt;text-align:center">@pDate</p>
+        <ScoreCircle myid="@myid" width="6em" score="@myscore" lineWidth="5" goldCir="5" />
+        <button @onclick="whathPres" class="btn-primary">צפייה</button>
+    </div>
+
+</div>
+
+
+
+@code {
+    [Parameter]
+    public int pNum { get; set; }
+    [Parameter]
+    public string pName { get; set; }
+    [Parameter]
+    public string pDate { get; set; }
+    [Parameter]
+    public double pScore { get; set; }
+    [Parameter]
+    public Presentation myp { get; set; }
+
+
+
+    int myscore = 0;
+
+
+    string myid = "p";
+    protected override async Task OnInitializedAsync()
+    {
+        myscore = (int)Math.Round(pScore);
+        myid = "p" + pNum.ToString();
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        //await JSRuntime.InvokeVoidAsync("drawc",myid,5,5);
+    }
+    protected void whathPres()
+    {
+        sessionStorage.SetItem("myP", myp);
+        sessionStorage.SetItem("newPre", false);
+        navigat.NavigateTo("./Feedback");
+    }
+}

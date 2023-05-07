@@ -1,0 +1,17 @@
+﻿@using fireBaseHandler.Shared.Entities
+@inject NavigationManager navigat
+@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+
+<button @onclick="watchPres"><span class="icon-watch-icon"></span></button>
+
+@code {
+    [Parameter]
+    public int myp { get; set; }
+
+    protected void watchPres()
+    {
+        sessionStorage.SetItem("myP", myp.ToString());
+        sessionStorage.SetItem("newPre", false);
+        navigat.NavigateTo("./Feedback");
+    }
+}

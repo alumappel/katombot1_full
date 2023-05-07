@@ -1,0 +1,35 @@
+﻿@inject IJSRuntime JSRuntime
+    <canvas id=@myid class="circleGraphic" width="@width" height="@width"></canvas>
+@code {
+
+    [Parameter]
+    public string myid { get; set; }
+    [Parameter]
+    public int score { get; set; }
+    [Parameter]
+    public int width { get; set; }
+    [Parameter]
+    public int lineWidth { get; set; }
+    [Parameter]
+    public int goldCir { get; set; }
+    [Parameter]
+    public bool isBig { get; set; }
+
+    double cirwidth = 0;
+    double margin = 0;
+
+    string cir = "";
+    string mg = "";
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!isBig)
+            isBig = false;
+        await JSRuntime.InvokeVoidAsync("scoreCan",score,myid, width, lineWidth, goldCir,isBig);
+    }
+
+
+}

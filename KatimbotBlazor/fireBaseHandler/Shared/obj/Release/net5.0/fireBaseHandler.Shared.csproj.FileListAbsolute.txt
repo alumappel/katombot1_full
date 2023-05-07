@@ -1,0 +1,12 @@
+C:\Users\נטע\Documents\תואר\שנה ג\idk\fireBaseHandler\Shared\bin\Release\net5.0\fireBaseHandler.Shared.deps.json
+C:\Users\נטע\Documents\תואר\שנה ג\idk\fireBaseHandler\Shared\bin\Release\net5.0\fireBaseHandler.Shared.dll
+C:\Users\נטע\Documents\תואר\שנה ג\idk\fireBaseHandler\Shared\bin\Release\net5.0\ref\fireBaseHandler.Shared.dll
+C:\Users\נטע\Documents\תואר\שנה ג\idk\fireBaseHandler\Shared\bin\Release\net5.0\fireBaseHandler.Shared.pdb
+C:\Users\נטע\Documents\תואר\שנה ג\idk\fireBaseHandler\Shared\obj\Release\net5.0\fireBaseHandler.Shared.csproj.AssemblyReference.cache
+C:\Users\נטע\Documents\תואר\שנה ג\idk\fireBaseHandler\Shared\obj\Release\net5.0\fireBaseHandler.Shared.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\נטע\Documents\תואר\שנה ג\idk\fireBaseHandler\Shared\obj\Release\net5.0\fireBaseHandler.Shared.AssemblyInfoInputs.cache
+C:\Users\נטע\Documents\תואר\שנה ג\idk\fireBaseHandler\Shared\obj\Release\net5.0\fireBaseHandler.Shared.AssemblyInfo.cs
+C:\Users\נטע\Documents\תואר\שנה ג\idk\fireBaseHandler\Shared\obj\Release\net5.0\fireBaseHandler.Shared.csproj.CoreCompileInputs.cache
+C:\Users\נטע\Documents\תואר\שנה ג\idk\fireBaseHandler\Shared\obj\Release\net5.0\fireBaseHandler.Shared.dll
+C:\Users\נטע\Documents\תואר\שנה ג\idk\fireBaseHandler\Shared\obj\Release\net5.0\ref\fireBaseHandler.Shared.dll
+C:\Users\נטע\Documents\תואר\שנה ג\idk\fireBaseHandler\Shared\obj\Release\net5.0\fireBaseHandler.Shared.pdb

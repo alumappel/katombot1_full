@@ -1,0 +1,404 @@
+﻿@page "/Presentation"
+
+@inject IJSRuntime JSRuntime
+@inject HttpClient Http
+@inject NavigationManager navigat
+
+@using System.IO
+@using System;
+@using System.Net.Http;
+@using System.Threading.Tasks;
+@using fireBaseHandler.Shared.Entities;
+@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+@* בדיקה האם הוזנו נתונים *@
+@if (ins)
+{
+    <Animate Animation="Animations.FadeUp" AnchorPlacement="center" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(0.5)">
+
+        <Instructions name="@user.FirstName" done="closeins"></Instructions>
+    </Animate>
+}
+@if (!@save && !@ins)
+{
+    //הגדרות לפזנטציה
+    <Animate Animation="Animations.FadeUp" AnchorPlacement="center" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(0.25)">
+
+        <div class="bg presInfo" style="width: max-content;max-width:100%;left:0%">
+            <a href="./MainPage" id="x" class="icon-x-icon return" style="text-decoration: none; color: var(--textC)"></a>
+
+            <h3>@user.FirstName עוד רגע נתחיל</h3>
+            <EditForm Model="newP" OnValidSubmit="start">
+                <DataAnnotationsValidator  />
+                <fieldset style="display: flex; flex-direction: column; align-self: flex-start;">
+                    <label for="presName">על מה הפרזנטציה?</label>
+                    <div class="flex" id="startPresBtns">
+                        <div class="d-flex flex-column" style="gap:-1em;">
+                            <InputText id="presName" class="inputTxt" @bind-Value="newP.Name" style="margin-bottom: -1em;" />
+                            <ValidationMessage For="@(() => newP.Name)"   />
+                        </div>
+                        <a class="btn-primary outbtn" @onclick="openR" style="width: 7em; cursor: pointer; margin-bottom: -1em;">אין לך נושא?</a>
+                    </div>
+                </fieldset>
+                @if (rando)
+                {
+                    <div class="loading" style="margin-top: -10%;"></div>
+                    <Animate Animation="Animations.ZoomIn" AnchorPlacement="center" Duration="TimeSpan.FromSeconds(0.75)" Delay="TimeSpan.FromSeconds(0.25)">
+
+                        <div class="randoName">
+                            <a @onclick="closeR" id="x" class="icon-x-icon" style="width: 2em; height: 2em; border-radius: 50%; cursor: pointer"></a>
+                            <h4>הנושא שהוגרל לך הוא:</h4>
+                            <p>@newName</p>
+                            <div class="row centerObject" style="display: flex;flex-direction: row !important;gap: 1em;">
+                                <a class="btn-primary" @onclick="closeROK" style="cursor: pointer; width: 5em">סבבה</a>
+                                <a class="btn-primary outbtn" @onclick="openR" style="cursor:pointer; width:5em">נושא אחר</a>
+                            </div>
+                        </div>
+                    </Animate>
+
+                }
+                <label style="margin-top:2em">יש לך את הצמיד שלנו?</label>
+                <div class="checkDiv @arduclass">
+                    <div class="checkCir trueArd" @onclick="thereArd">
+                        <div>
+                            <div id="p1"></div>
+                            <div id="p2"></div>
+                        </div>
+                    </div>
+                    <span>יש לי צמיד</span>
+                    <div class="checkCir falseArd" style="margin-right:1em"  @onclick="noArd">
+                        <div>
+                            <div id="p1"></div>
+                            <div id="p2"></div>
+                        </div>
+                    </div>
+                    <span>אין לי צמיד</span>
+                </div>
+                <label style="margin-top:2em">מה סוג הפרזנטציה?</label>
+                <div class="prestype @newP.Type ">
+                    <div class="presT typeFront " @onclick="@(() => newP.Type="front")">
+                        <span class="icon-prontal pictype"></span>
+                        <span>פרונטלית</span>
+                    </div>
+                    <div class="presT typeComp " @onclick="@(() => newP.Type="comp")">
+                        <span class="icon-comp pictype"></span>
+                        <span>מקוונת</span>
+                    </div>
+                </div>
+                <a id="toIns" @onclick="@(() => ins=true)">איך להשתמש במערכת?</a>
+                <input type="Submit" class="btn-primary border-0" style="width: max-content; padding: 0 4%; margin: 1em auto 0em auto" value="אפשר להתחיל">
+            </EditForm>
+        </div>
+    </Animate>
+    <p>@message</p>
+
+}
+<div style="display:flex; align-content:center; justify-content:center;align-items:center; justify-items:center">
+    <div style="">
+        <div class="justify-content-center mt-2 mb-2" id="lodeP" style="display:none">
+            <div class="lds-default centerObject"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+        </div>
+        <div class="row align-content-center align-items-center justify-content-center" style="gap:2em">
+            <button class="btn-primary border-0 p-3 mt-2 mb-2" style="display:none" id="stopbtn" @onclick="endVid">סיימתי</button>
+            <p id="prestime" style="display: none;" class="btn-primary mb-2 mt-2">00:00</p>
+        </div>
+
+
+
+        @* ווידאו *@
+        <div class="d-flex justify-content-center flex-column align-items-center" style="gap:1em">
+            <audio id="audio" muted></audio>
+            <canvas id="canvas" width="@Width" height="@Height" muted style="display: none; transform: scaleX(-1); border-radius:2em; box-shadow: var(--shadow)"></canvas>
+            <canvas id="green" width="@Width" height="@Height" muted style="display: none; border-radius: 2em; position: absolute; transform: translateY(-8%);"></canvas>
+            <video id="video" width="@Width" height="@Height" muted autoplay style="display: none;  "></video>
+            <canvas id="soundCanvas" width="@Width" height="50" style="border-radius: 2em; display: none; max-width: 90%; "></canvas>
+            <h1 id="countdown" style="position: absolute; width: 100%; color: var(--bg); font-size: 20em; top: 0.3em;display:none;">3</h1>
+
+        </div>
+
+    </div>
+
+</div>
+<div class="block">
+    <h3>
+         לא ניתן לבצע פרזנטציה דרך הנייד.
+    </h3>
+    כדי לבצע פרזנטציה צריך להיכנס למערכת דרך מחשב.
+    <a href="./MainPage" class="btn-primary" style="width:100%">חזרה לדף הראשי</a>
+</div>
+@if (save)
+{
+
+    <Animate Animation="Animations.FadeUp" AnchorPlacement="center" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(0.25)">
+
+        <div class="bg presInfo low" id="win">
+            @if (!vidOn && ardu)
+            {
+                <a @onclick="notsave" id="x" class="icon-x-icon return" style="text-decoration: none; color: var(--textC)"></a>
+
+                <h3>כדי להתחיל צריך להדליק את הצמיד</h3>
+                <iframe scrolling="no" class="gifs" style="height: auto; width: 50%;" src="./animations/turnOn.html">
+                </iframe>
+                <div style="width: 100%;gap: 1em;display: flex;justify-content: center;">
+                    <button @onclick="startVid" class="btn-primary border-0" style="width:max-content;padding: 2% 5%">הדלקתי</button>
+                    <button @onclick="startNoArd" class="btn-primary outbtn" style="width:max-content;padding: 2% 5%">אין לי צמיד</button>
+                </div>
+            }
+            else
+            {
+                <h3>@user.FirstName, עוד רגע נתחיל!</h3>
+                <p>
+                    על מנת לקבל מדדים נכונים עבורך, המערכת יוצרת כרגע חיבור עם הצמיד ובדיקה של המדדים.<br />
+                    זה יקח מספר שניות ואחרי זה נוכל להתחיל:)<br />
+                    נא להדליק את הרמקולים של המחשב ולעמוד מול המצלמה.
+                </p>
+                <div id="" style="width:26em;height:1em">
+                    <div id="loadpres" style="width:0%;"></div>
+                </div>
+            }
+        </div>
+    </Animate>
+}
+
+@if (finish)
+{
+    <Animate Animation="Animations.FadeUp" AnchorPlacement="center" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(0.25)">
+
+        <div class="bg presInfo justify-content-center align-items-center" id="presDone">
+
+            @if (!loadFeedback)
+            {
+                <h4>@user.FirstName המערכת מחשבת את הציון שלך</h4>
+                <p>בבקשה לא לסגור את החלון</p>
+                <div class="justify-content-center mt-2 mb-2 align-items-center">
+                    <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+                </div>
+            }
+            else if (ardu)
+            {
+                <h3>נא לכבות את הצמיד</h3>
+                <iframe scrolling="no" class="gifs" style="height: auto; width: 50%;" src="./animations/turnOff.html">
+                </iframe>
+
+                <button @onclick="ardOff" class="btn-primary border-0" style="width:max-content;padding: 2% 5%">כיביתי</button>
+            }
+            else
+            {
+                <h3 style="font-size:2.5rem;">@user.FirstName, רוצה לדעת איך היית?</h3>
+                <a style="width:max-content;padding: 2% 5%" href="./FeedBack" class="btn-primary centerObject">למשוב</a>
+            }
+        </div>
+    </Animate>
+}
+
+
+@code {
+    int score = 0;
+    //איפוס משתנים
+    string subject = "";
+    private string frameUri;
+    bool save = false;
+    bool vidOn = false;
+    string message = "";
+    bool finish = false;
+    bool loadFeedback = false;
+    int Width = 0;
+    int Height = 0;
+    string pnum;
+    string newName = "";
+    bool rando = false;
+    bool ardu = true;
+    LogInData user = new LogInData();
+    PresentationInfo newP = new PresentationInfo();
+    bool ins = false;
+    int pcount;
+    string canID = "canvas";
+    string vidID = "video";
+    string arduclass = "thereArd";
+    List<string> ideas = new List<string>() {
+        "משבר האקלים",
+        "ההיסטוריה של ישראל",
+        "צמחונות",
+        "רעיון לסטארטאפ",
+        "מיחזור בקבוקים",
+        "חיסונים",
+        "משמעות החיים",
+        "סדר היום שלי",
+        "למה לקבל אותי לעבודה",
+        "הכירו אותי",
+        "טכנולוגיות למידה",
+        "מיומנויות למידה",
+        "האירוויזיון",
+        "מנהיגות",
+        "תרבות ישראלית",
+        "מדינות בעולם",
+        "מצב החסה בשטחים",
+        "ניסויים על בעלי חיים",
+        "בחירות",
+        "תחבורה ציבורית",
+        "זכויות עובדים",
+        "פוליטיקה",
+        "תוכניות ריאליטי"
+
+    };
+    protected void noArd()
+    {
+        ardu = false;
+            arduclass = "noArd";
+     
+    }    
+    protected void thereArd()
+    {
+        ardu = true;
+
+            arduclass = "thereArd";
+      
+
+    }
+
+
+    void closeins()
+    {
+        ins = false;
+    }
+    protected void closeROK()
+    {
+        newP.Name = newName;
+        rando = false;
+
+    }
+    protected void closeR()
+    {
+        newName = "";
+        rando = false;
+
+    }
+    protected void openR()
+    {
+        Random rnd = new Random();
+        int size = ideas.Count;
+        newName = ideas[rnd.Next(size)];
+        rando = true;
+    }
+    //גודל וידאו
+    protected override async Task OnInitializedAsync()
+    {
+        user = sessionStorage.GetItem<LogInData>("user");
+        sessionStorage.SetItem("show", 0);
+
+        if (user == null)
+            navigat.NavigateTo("./LogIn");
+        else
+        {
+            var width = await JSRuntime.InvokeAsync<int>("getwidth");
+            var height = await JSRuntime.InvokeAsync<int>("getheight");
+            Height = height;
+            Width = width;
+            newP.Type = "front";
+            pcount = sessionStorage.GetItem<int>("pcount");
+
+            //canID += DateTime.Now.ToShortTimeString().Replace(".", "").Replace(":","");
+            //vidID += DateTime.Now.ToShortTimeString().Replace(".", "").Replace(":", "");
+            if (pcount > 0)
+                ins = false;
+            else
+                ins = true;
+
+
+        }
+
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("stopS");
+        }
+        catch { }
+    }
+    //הפעלה של המצלמה דרך JS
+
+    protected async Task start()
+    {
+
+        //הוספת זמן
+        string date = DateTime.Today.ToShortDateString();
+        //יצירת מופע של מידע לפרזנטציה
+        newP.Date = date;
+        //ניסיון קריאה לשרת
+        try
+        {
+            save = true;
+            //פרזנטציה חדשה
+            var getResponse = await Http.PostAsJsonAsync("api/FireBase/NewPresUser/u" + user.ID.ToString() + "/" + ardu.ToString(), newP);
+            Http.DefaultRequestHeaders.ConnectionClose = true;
+            pnum = await getResponse.Content.ReadAsStringAsync();
+            await Task.Delay(500);
+            if (ardu)
+                await JSRuntime.InvokeVoidAsync("playTurnOn");
+            if (!ardu)
+                await startVid();
+        }
+        catch
+        {
+            //הודעת שגיאה
+            message = "קרתה תקלה, אי אפשר כרגע להתחיל את הפרזנטציה";
+        }
+
+
+    }
+
+    protected async Task startVid()
+    {
+        //user, presentation, ardu, type,canID, vidID
+        await JSRuntime.InvokeVoidAsync("startVideo", user.ID.ToString(), pnum, ardu, newP.Type);
+        vidOn = true;
+
+    }
+    protected async Task startNoArd()
+    {
+        ardu = false;
+        await JSRuntime.InvokeVoidAsync("startVideo", user.ID.ToString(), pnum, false, newP.Type);
+        vidOn = true;
+    }
+
+    protected async Task notsave()
+    {
+        var getResponse = await Http.GetAsync("api/FireBase/DelEmpty/u" + user.ID.ToString() + "/" + pnum.ToString());
+        vidOn = false;
+        save = false;
+
+    }
+
+    protected void ardOff()
+    {
+        ardu = false;
+    }
+    //לחיצה על כפתור סיום
+    protected async Task endVid()
+    {
+        await JSRuntime.InvokeVoidAsync("stopVid");
+        finish = true;
+        Presentation mypres = new Presentation();
+        var getPresentation = await Http.GetAsync("api/FireBase/Presentation/u" + user.ID.ToString() + "/" + pnum);
+        try
+        {
+            mypres = await getPresentation.Content.ReadFromJsonAsync<Presentation>();
+            sessionStorage.SetItem("myP", pnum);
+            sessionStorage.SetItem("isnew", false);
+            sessionStorage.SetItem("newPre", true);
+
+            loadFeedback = true;
+            pcount++;
+            sessionStorage.SetItem("pcount", pcount);
+
+        }
+        catch
+        {
+            message = "בעיה";
+        }
+
+        //navigat.NavigateTo("./MainPage");
+
+    }
+
+}

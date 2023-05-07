@@ -1,0 +1,80 @@
+﻿<div class="bg presInfo instuct">
+    <a @onclick="finish" id="x" class="icon-x-icon return" style="text-decoration: none; color: var(--textC)"></a>
+    @if (num < 4)
+    {
+<h3 style="align-self:flex-start">כמה דברים שכדאי לדעת לפני שנתחיל</h3>
+        <p>@ins[num]</p>
+        string mysrc = @startSRC + @gifs[num] + @endSRC;
+        <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
+            <iframe scrolling="no" class="gifs" src="@mysrc">
+            </iframe>
+        </Animate>
+        <button class="inconBTN lt anileftright" @onclick="@(() => num++)" style="position: absolute;left: 10%;top: 50%;"> <span style="font-size:35pt;" class="icon-more-right btnIconArrow"></span></button>
+
+
+        <div class="dots" style="flex-direction:row">
+            @for (int i = 0; i < 4; i++)
+            {
+                int x = i;
+                if (i == num)
+                {
+                    <button class="thisD" @onclick="@(() => num = x)"></button>
+                }
+                else
+                {
+                    <button class="NothisD" @onclick="@(() => num = x)"></button>
+                }
+
+            }
+        </div>
+    }
+    else
+    {
+        <h3 style="margin-top:0em;margin-bottom: 1em;">יאללה, נתחיל?</h3>
+        <p>
+            @name עכשיו שלמדת איך להשתמש בקתימבוט אפשר להתחיל להעביר פרזנטציה.<br />
+            בזמן הפרזנטציה הקתימבוט יקלוט את התנועות, הדיבור והמבט שלך ויחשב לך ציון, מיד לאחר הפרזנטציה יהיה אפשר לראות את הציון ולקבל משוב מפורט.<br />
+            כדי לא לאבד נקודות סתם, חשוב מאוד לא לצאת מטווח המצלמה ולהתנהג כאילו מדובר בפרזנטציה מול קהל.<br />
+            בהצלחה:)
+        </p>
+        <div class="row" style="flex-direction: row;display: flex;gap: 1em;width: 100%;margin: 0 auto;justify-content: center;align-items: center;">
+            <button class="btn-primary border-0 " @onclick="finish" style="padding:2% 3%">אני רוצה להתחיל</button>
+            <button @onclick="@(() => num = 0)" class="btn-primary outbtn">חזרה להנחיות</button>
+        </div>
+
+    }
+
+</div>
+
+@code {
+    int num = 0;
+    string startSRC = "./animations/";
+    string endSRC = ".html";
+    [Parameter]
+    public string name { get; set; }
+
+    [Parameter]
+    public EventCallback done { get; set; }
+
+    List<string> ins = new List<string>()
+{
+    "את הצמיד יש לענוד על היד, ולהשחיל את החיישנים על שתי אצבעות מאותה היד."+"\n"+"אנחנו נגיד לך מתי לחבר את הצמיד למחשב.",
+    "יש לבצע את הפרזנטציה במקום שקט.\n המחשב צריך להיות מולך בגובה קרוב לגובה העיניים.",
+    "הצמיד שולח למערכת מידע גם על תנועות הידיים שלך, לכן חשוב לזכור להשתמש גם ביד עם הצמיד.",
+    "כדי לקבל משוב אפקטיבי ומותאם אליך, חשוב לבצע את הפרזנטציה כאילו היא מול קהל אמיתי."
+};
+    List<string> gifs = new List<string>()
+{
+    "barcelate",
+    "stand",
+    "data",
+    "score"
+
+};
+    void finish()
+    {
+        done.InvokeAsync();
+    }
+
+
+}

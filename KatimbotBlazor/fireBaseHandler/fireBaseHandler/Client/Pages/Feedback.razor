@@ -1,0 +1,58 @@
+﻿
+@page "/Feedback/{pnum}"
+@using fireBaseHandler.Shared.Entities;
+@inject HttpClient Http
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Threading.Tasks
+
+<h3>@pnum</h3>
+<ul class="list-group">
+    @* יצירת רשימת פרזנטציות *@
+    @foreach (PresentationArduino p in @PresentationList)
+    {
+        //התעלמות מהמקטע הראשון כי הוא ריק
+        if (p != @PresentationList[0])
+        {
+            //רשימה של נתונים
+    <li class="list-group-item" dir="rtl" >
+        <ul>
+            <li class="wilbeout"><b>מקטע: </b>@p.ID</li>
+            <li class="wilbeout"><b>חותמת זמן: </b>@p.TimeStamp</li>
+            <li class="wilbeout"><b>טמרפטורה: </b>@p.Temperature</li>
+            <li class="wilbeout"><b>תנועות ידיים: </b>@p.Hands</li>
+            <li class="wilbeout"><b>קצב לב: </b>@p.Heart</li>
+         </ul>
+    </li>
+
+        }
+    }
+</ul>
+@* הודעה *@
+<p>@message</p>
+
+@code {
+    //הגדרת פרמטר- מספר הפרזנטציה
+    [Parameter]
+    public string pnum { get; set; }
+    string message = "";
+    List<PresentationArduino> PresentationList = new List<PresentationArduino>();
+    //קבלת כל הפרטים בעליית הדף
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+
+            string url = "api/FireBase/TheWholePresentation/" + pnum;
+            var getResponse = await Http.GetAsync(url);
+            Http.DefaultRequestHeaders.ConnectionClose = true;
+
+            PresentationList = getResponse.Content.ReadFromJsonAsync<List<PresentationArduino>>().Result;
+        }
+        catch
+        {
+            message = "לא מצאנו נתונים";
+        }
+    }
+
+}

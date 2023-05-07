@@ -1,0 +1,284 @@
+﻿@page "/Tips"
+@using fireBaseHandler.Shared.Entities;
+@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+@inject NavigationManager navigat
+@inject IJSRuntime JSRuntime
+    <div style="position: fixed;top: 30%;" id="navdivTip">
+        <Animate Animation="Animations.FadeDown" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(0.5)">
+
+            <div class="d-flex flex-column" style="width: 14em; height: 30em; margin-right: 1em; padding: 0; text-align: right; ">
+                <div class="bg">
+                    <ul class="sideBar" style="list-style: none; gap: 1em; display: flex; flex-direction: column;">
+                        <li><a href="./Tips#Voice" id="aVoice" class="notA dot"><div></div>קול ודיבור</a></li>
+                        <li><a href="./Tips#Move" id="aMove" class="notA dot" ><div></div>תנועה במרחב</a></li>
+                        <li><a href="./Tips#Hand" id="aHand" class="notA dot"><div></div>תנועות ידיים</a></li>
+                        <li><a href="./Tips#Look" id="aLook" class="notA dot"><div></div>מבט לקהל</a></li>
+                        <li><a href="./Tips#Con"  id="aCon" class="notA dot"><div></div>ביטחון עצמי</a></li>
+                        <li><a href="./Tips#Show" id="aShow" class="notA dot"><div></div>התלהבות והופעה</a></li>
+                    </ul>
+                </div>
+            </div>
+        </Animate>
+    </div>
+
+    <div class="d-flex flex-column" id="tipSec" style="gap: 2em; text-align: right;">
+
+        <Animate Animation="Animations.FadeDown" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(0.5)">
+
+            <div class="bg" style="text-align: right; text-align: right; padding: 2.5em 2.5em 1em 2.5em; ">
+                <a href="@url" id="x" class="icon-x-icon return" style="text-decoration: none; color: var(--textC)"></a>
+
+                <h3 style="font-size: 20pt;">
+                    כללי הזהב של קתימבוט:
+                </h3>
+                <p style="font-size: 12pt; ">
+                    כל הכללים החשובים כדי שהפרזנטציה שלך תעבור בצורה הטובה ביותר
+                </p>
+                <div style="font-size: 12pt; ">
+                    כל פרזנטציה מורכבת מהמרכיבים הבאים:
+
+                </div>
+                <div class="row" id="tipBtnDiv" style="justify-content: space-between; margin: 2em 0; ">
+                    <TipBtn src="icon-mic-icon" anchor="./Tips#Voice" name="שימוש בקול"></TipBtn>
+                    <TipBtn src="icon-move-icon" anchor="./Tips#Move" name="תנועה במרחב"></TipBtn>
+                    <TipBtn src="icon-hans-icon" anchor="./Tips#Hand" name="תנועות ידיים"></TipBtn>
+                    <TipBtn src="icon-watch-icon" anchor="./Tips#Look" name="מבט לקהל"></TipBtn>
+                    <TipBtn src="icon-cool-icon" anchor="./Tips#Con" name="ביטחון עצמי"></TipBtn>
+                    <TipBtn src="icon-cofettie-icon" anchor="./Tips#Show" name="הופעה והתלהבות"></TipBtn>
+                </div>
+                <p style="font-size: 12pt;">
+                    על מנת שהפרזנטציה תהיה אפקטיבית יש להשתמש בכל מרכיב בצורה הטובה ביותר.
+                </p>
+                <Animate Animation="Animations.FadeDown" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(1.5)">
+                    <a href="./Tips#Voice" class="flex-column align-content-center align-items-center justify-content-center d-flex" style="margin-top:2em;text-decoration:none;">
+                        <p style="font-size: 12pt;font-weight: 600;text-align: center;">אז איך לעשות את זה?</p>
+                        <span class="icon-arrows-2-icon showFeed" style="color: var(--textC); font-size: 16pt; margin-top: 1em;"></span>
+                    </a>
+                </Animate>
+            </div>
+
+        </Animate>
+        <Animate Animation="Animations.FadeDown" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(2.5)">
+            <div class="bg tipdiv anc" id="Voice">
+                <a href="@url" id="x" class="icon-x-icon return" style="text-decoration: none; color: var(--textC)"></a>
+                <h3>רגע, מה אמרת עכשיו?</h3>
+                <h4>שימוש נכון בקול ובדיבור</h4>
+
+                <div class="gif">
+                    <iframe src="https://giphy.com/embed/WpmfX8Qfp0Kbe8Amey" frameBorder="0" class="giphy-embed"></iframe><p><a href="https://giphy.com/gifs/amazonvideouk-wolfofwallstreet-WpmfX8Qfp0Kbe8Amey"> GIPHY</a></p>
+                </div>
+                <h5>אז למה זה חשוב?</h5>
+                <p>
+                    בהדרכה, התוכן מועבר בעיקר דרך הקול ולכן הקול הוא החשוב ביותר להעברה טובה של פרזנטציה. דיבור איטי, חלש או מונוטוני יכול להיות משעמם מאוד ולגרום לקהל שלך לאבד את הקשב. גם דיבור מהיר או חזק מדי יכול לתת תחושה לא נעימה, של לחץ ואיום. שימוש נכון בקול סוחף את הקהל, עוזר להבנה ובעיקר גורם לכך שפשוט יהיה כיף להקשיב לך.
+                </p>
+                <h5>על מה צריך להקפיד?</h5>
+                <div class="row align-content-center justify-content-center" style="gap: 1em; width: 100%; margin: 1em 0 2em 0;">
+                    <VoiceTip imgsrc="icon-pitch-icon" tip="דיבור בעוצמה מספיק חזקה כדי שישמעו בכל החדר אבל לא  לצעוק"></VoiceTip>
+                    <VoiceTip imgsrc="icon-rate-icon" tip="קצב דיבור מספיק איטי כדי לקלוט את החומר, אבל לא איטי מדי"></VoiceTip>
+                    <VoiceTip imgsrc="icon-vol-icon" tip="שינוי טונים ומהירויות דיבור במהלך ההדרכה"></VoiceTip>
+                    <VoiceTip imgsrc="icon-Exclamation-mark" tip="אחרי אמירה חשובה, לעצור לשנייה כדי לתת לתוכן להיקלט"></VoiceTip>
+                    <VoiceTip imgsrc="icon-talk-icon" tip="חשוב להימנע ממלאי מקום: אממ, וווו, כאילו, בעצם, "></VoiceTip>
+                </div>
+
+                <h5>
+                    טיפ מקתימבוט:
+                </h5>
+                <p>
+                    אפשר להשתמש בשינויים בטון ובקצב הדיבור כדי להדגיש את המסר. דיבור איטי ושקט שנהיה מהיר וחזק יצור תחושת מתח, דיבור חזק וברור יבהיר שנאמר משהו חשוב. במהלך הפרזנטציה כדאי לשחק עם הטונים והקצב של הדיבור בהתאם לתוכן.
+                </p>
+
+            </div>
+        </Animate>
+
+
+        <Animate Animation="Animations.FadeDown" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(0.5)">
+
+            <div class="bg tipdiv anc" id="Move">
+                <a href="@url" id="x" class="icon-x-icon return" style="text-decoration: none; color: var(--textC)"></a>
+
+                <h3>לאן ללכת?</h3>
+                <h4>תנועה נכונה במרחב</h4>
+
+                <div class="gif">
+                    <iframe src="https://giphy.com/embed/aIYk6utsesfx6" frameBorder="0" class="giphy-embed"></iframe><p> טוב נו, אולי לא ככה  | <a href="https://giphy.com/gifs/dance-mrw-presentation-aIYk6utsesfx6"> GIPHY</a></p>
+                </div>
+                <h5>אז למה זה חשוב?</h5>
+                <p>
+                    העין שלנו נמשכת לתנועה, התנועה תעזור לך לגרום לקהל להתמקד בך בזמן הפרזנטציה ולהקשיב לך יותר. תנועה יוצרת תחושה של דינאמיות, של שינוי ואנרגיה ולכן חשוב מאוד להקפיד לזוז בזמן הפרזנטציה.
+                </p>
+                <h5>על מה צריך להקפיד?</h5>
+                <p>
+                    התנועה צריכה להיות טבעית ושקטה, לא מגוחכת או תזזיתית מדי אבל גם לא סטטית כמו בול עץ. גם למיקום יש חשיבות, היצמדות ללוח יוצרת תחושת חוסר ביטחון וריחוק מהקהל, לעומת זאת קרבה מוגזמת תיצור תחושה של פלישה למרחב האישי ואי נעימות.
+                </p>
+                <div class="flex-column" style="display: flex;align-content: center;align-items: center;">
+                    <h6 style=" font-size: 12pt; font-weight: 600;">מאיזה תנועות להימנע?</h6>
+                    <div class="row" style="margin: -1em 0 1em 0;">
+                        <div class="gif">
+                            <iframe src="https://giphy.com/embed/xULW8mV10maK1Ssfg4" frameBorder="0" class="giphy-embed"></iframe><p>תנועת האריה בכלוב |  <a href="https://giphy.com/gifs/games-olympics-xULW8mV10maK1Ssfg4"> GIPHY</a></p>
+                        </div>
+                        <div class="gif">
+                            <iframe src="https://giphy.com/embed/3o6ZsSOgtBxALBNcqs" frameBorder="0" class="giphy-embed"></iframe><p>תנועת בול העץ | <a href="https://giphy.com/gifs/southparkgifs-3o6ZsSOgtBxALBNcqs"> GIPHY</a></p>
+                        </div>
+                    </div>
+                </div>
+                <h5>
+                    טיפ מקתימבוט:
+                </h5>
+                <p>
+                    אפשר לסמן כמה נקודות שונות במרחב ולדאוג להגיע לכל אחת מהן לפחות פעם אחת במהלך הפרזנטציה.
+                </p>
+
+
+            </div>
+        </Animate>
+
+
+        <Animate Animation="Animations.FadeDown" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(0.5)">
+
+            <div class="bg tipdiv anc" id="Hand">
+                <a href="@url" id="x" class="icon-x-icon return" style="text-decoration: none; color: var(--textC)"></a>
+
+                <h4>שימוש בידיים בזמן הפרזנטציה</h4>
+
+                <div class="gif">
+                    <iframe src="https://giphy.com/embed/8vz4YMfBrIQhBIScY7" frameBorder="0" class="giphy-embed"></iframe><p><a href="https://giphy.com/gifs/descomplica-aula-universidades-pois-e-8vz4YMfBrIQhBIScY7"> GIPHY</a></p>
+                </div>
+                <h5>אז למה זה חשוב?</h5>
+                <p>
+                    תנועות הידיים יכולות לעזור בהמחשה של התוכן ושל מושגים, דרך תנועות הידיים ניתן לעזור להבנת תוכן ורעיונות שקשה להסביר במילים. בנוסף, תנועות ידיים מוסיפות דינאמיות ותנועה לפרזנטציה וכך עוזרות למיקוד הקשב של הקהל.
+
+                </p>
+                <h5>על מה צריך להקפיד?</h5>
+                <p>
+                    גם תנועות ידיים, כמו תנועה במרחב, צריכות להיות במינון נכון. תנועות מוגזמות יסיטו את הקשב של הקהל ויפגעו בפרזנטציה. חשוב לשים לב שהידיים חופשיות להדגמה והסברה. תנועות עצבניות כמו משחק בטוש או בבגד, ידיים בכיסים, או שילוב ידיים יפגעו בקשב של הלומדים ויעבירו תחושת עצבנות וחוסר ביטחון.
+                </p>
+
+                <h5>
+                    טיפ מקתימבוט:
+                </h5>
+                <p>
+                    לפני הפרזנטציה כדאי לחשוב מהם הנושאים שצריכים המחשה נוספת, ולהתאים להן תנועות ידיים מתאימות. כדאי להתאמן על סנכרון תנועות הידיים עם קצב הדיבור על מנת ליצור תנועה זורמת ולא עצבנית.
+                </p>
+            </div>
+        </Animate>
+
+        <Animate Animation="Animations.FadeDown" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(0.5)">
+
+            <div class="bg tipdiv anc" id="Look" style="padding-left:3em">
+                <a href="@url" id="x" class="icon-x-icon return" style="text-decoration: none; color: var(--textC)"></a>
+
+                <h3>להסתכל לקהל בעיניים</h3>
+                <h4>שמירה על קשר עין עם הקהל</h4>
+
+                <div class="gif">
+                    <iframe src="https://giphy.com/embed/3og0IExSrnfW2kUaaI" frameBorder="0" class="giphy-embed"></iframe><p><a href="https://giphy.com/gifs/bark-dogs-barkbox-3og0IExSrnfW2kUaaI"> GIPHY</a></p>
+                </div>
+                <h5>אז למה זה חשוב?</h5>
+                <p>
+                    קשר עין יוצר תחושה של יחס אישי ומגייס את הקהל להקשיב לפרזנטציה. ניתן לקבל המון מידע ממראה הקהל ולהבין האם הקהל משועמם, עייף או צריך הסבר נוסף.
+
+                </p>
+                <h5>על מה צריך להקפיד?</h5>
+                <p>
+                    חשוב לשים לב שלא "להיתקע" על נקודה ספציפית או על לומד ספציפי. מבט לנקודה אחת יצור תחושת אי נוחות ללומדים שעליהם מסתכלים, ולשאר הלומדים תחושת ניתוק. המבט צריך להיות בגובה הקהל, מבט נמוך מדי יעביר תחושת חוסר ביטחון ומבט גבוה מדי יעביר תחושת חוסר ריכוז. בפרזנטציה מקוונת, לשים לב להסתכל למצלמה ולא למסך.
+                </p>
+                <div class="gif">
+
+                    <iframe src="https://giphy.com/embed/3ohhwFq0liwGtrLNxC" frameBorder="0" class="giphy-embed"></iframe><p>היה כאן קהל כל הזמן הזה? | <a href="https://giphy.com/gifs/britney-spears-well-3ohhwFq0liwGtrLNxC"> GIPHY</a></p>
+                </div>
+                <h5>
+                    טיפ מקתימבוט:
+                </h5>
+                <p>
+                    כתיבת מלל רב במצגת יגרום לך להסתכל על המצגת על מנת לזכור את הכתוב. צמצום התוכן במצגת "יכריח" אותך לזכור את התוכן, וכך לא יהיה צורך להסתכל על המצגת ולהפנות גב לקהל. בדרך זו המצגת גם תהיה יפה יותר:)
+                </p>
+            </div>
+        </Animate>
+        <Animate Animation="Animations.FadeDown" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(0.5)">
+
+            <div class="bg tipdiv anc" id="Con" style="padding-left:3em">
+                <a href="@url" id="x" class="icon-x-icon return" style="text-decoration: none; color: var(--textC)"></a>
+
+                <h3>
+                    אבל יש לי פחד במה!
+                </h3>
+                <h4>
+                    איך להפגין ביטחון עצמי?
+                </h4>
+
+                <div class="gif">
+                    <iframe src="https://giphy.com/embed/9UZZf3bJf3afGFe1in" frameBorder="0" class="giphy-embed"></iframe><p>אמאל'ה קהל! | <a href="https://giphy.com/gifs/donnathomas-rodgers-reaction-9UZZf3bJf3afGFe1in"> GIPHY</a></p>
+                </div>
+                <h5>אז למה זה חשוב?</h5>
+                <p>
+                    קודם כל כי לא כיף לעמוד על במה ולרעוד. מעבר לכך, ביטחון עצמי יוצר תחושה של בקיאות וסמכות ויגרום לקהל להאמין לך ולהאמין בערך של התוכן המועבר. הבעת חוסר ביטחון תגרום לחוסר אמון ולחוסר רצון להקשיב לך. חוסר ביטחון גם יגרום לך לשכוח להקפיד על כל הדגשים האחרים.
+                </p>
+                <h5>על מה צריך להקפיד?</h5>
+                <p>
+                    לחייך, לעמוד זקוף והכי חשוב- להתאמן ולהתכונן לפרזנטציה. ההכנה תעזור לך להגיע לבקיאות וביטחון בתוכן המועבר. תרגול פרזנטציה מול חברים יוכל לגרום לך להתכונן לחוויה של עמידה מול קהל ולהירגע.
+                </p>
+                <h5>
+                    טיפ מקתימבוט:
+                </h5>
+                <p>
+                    אפשר להגיד בתחילת הפרזנטציה "סליחה על ההתרגשות" או "אני קצת מתרגש.ת", זה יגרום לקהל להיות סלחנים יותר לחוסר ביטחון ויצור תחושה של קרבה.
+                </p>
+            </div>
+        </Animate>
+        <Animate Animation="Animations.FadeDown" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(0.5)">
+
+            <div class="bg tipdiv anc" id="Show" style="padding-left:3em">
+                <a href="@url" id="x" class="icon-x-icon return" style="text-decoration: none; color: var(--textC)"></a>
+
+                <h3>
+                    It’s show time!
+                </h3>
+                <h4>
+                    איך ליצור פרזנטציה בלתי נשכחת
+                </h4>
+
+                <div class="gif">
+                    <iframe src="https://giphy.com/embed/1rSRfKmmDCLFEyjhmJ" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p>אין שני לרושם ראשוני | <a href="https://giphy.com/gifs/20thcenturyfox-the-kid-who-would-be-king-tkwwbk-kwwbk-1rSRfKmmDCLFEyjhmJ"> GIPHY</a></p>
+                </div>
+                <h5>אז למה זה חשוב?</h5>
+                <p>
+                    כל פרזנטציה היא בעצם הופעה, כדי שהקהל ירצה להקשיב לך וייהנה מהפרזנטציה צריך להשקיע ולתכנן. הצגה בצורה סוחפת ומעניינת תגרום לתוכן שלך לעבור בצורה טובה יותר.
+                </p>
+                <h5>על מה צריך להקפיד?</h5>
+                <p>
+                    חלק מההופעה היא המראה, יש לבוא במראה מסודר ומכבד. בנוסף, ההתלהבות שלך חשובה מאוד על מנת לסחוף את הקהל ולהלהיב אותם. כדאי להשקיע בכמה רגעים מיוחדים שיהיו בלתי נשכחים כמו פתיחה חזקה, סיום שנשאר ואנקדוטות במהלך ההצגה.
+                </p>
+                <h5>
+                    טיפ מקתימבוט:
+                </h5>
+                <p>
+                    גם המצגת היא חלק מההופעה, מצגת מושקעת ומעוצבת תיצור תחושת רצינות ותוסיף לחווית ההקשבה
+                </p>
+                <div class="gif">
+                    <iframe src="https://giphy.com/embed/gicYGfRxoJlFqYpwnE" frameBorder="0" class="giphy-embed"></iframe><p>שקף תודה גנרי | <a href="https://giphy.com/gifs/taylorswift-music-video-taylor-swift-the-man-gicYGfRxoJlFqYpwnE"> GIPHY</a></p>
+                </div>
+            </div>
+
+        </Animate>
+        <AnchorNavigation />
+
+    </div>
+    @code {
+        string url = "";
+        protected override async Task OnInitializedAsync()
+        {
+            url = sessionStorage.GetItem<string>("gototip");
+        }
+
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await  JSRuntime.InvokeVoidAsync("scroll");
+        }
+
+
+
+        void moveto()
+        {
+        }
+    }

@@ -1,0 +1,144 @@
+﻿@page "/Presentation"
+
+@inject IJSRuntime JSRuntime
+@inject HttpClient Http
+@inject NavigationManager navigat
+
+@using SixLabors.ImageSharp
+@using SixLabors.ImageSharp.Processing;
+@using SixLabors.ImageSharp.Formats.Jpeg
+@using System.IO
+@using Microsoft.Extensions.Configuration;
+@using Microsoft.Extensions.DependencyInjection;
+@using Microsoft.Extensions.Logging;
+@using System;
+@using System.Collections.Generic;
+@using System.Linq;
+@using System.Net.Http;
+@using System.Threading;
+@using System.Threading.Tasks;
+@using fireBaseHandler.Shared.Entities;
+
+<h3>פרזנטציה</h3>
+
+@* בדיקה האם הוזנו נתונים *@
+@if (!@save)
+{
+    //הגדרות לפזנטציה
+    <div class="d-flex m-4 flex-column justify-content-lg-start align-items-lg-start justify-content-sm-center align-items-sm-center justify-content-center align-items-center">
+        <form>
+            <h5 class="text-right">על מה הפרזנטציה?</h5>
+            <input type="text" class="inputTxt" @bind="subject" max="20" />
+            <p>@message</p>
+        </form>
+        <button class="btn-primary border-0 p-3 mt-2" @onclick="startVid">אפשר להתחיל</button>
+    </div>
+
+}
+else
+{
+    @if (!vidOn)
+    {
+        <div class="d-flex justify-content-center mt-2 mb-2">
+            <div class="lds-default centerObject"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+        </div>
+    }
+    else
+    {
+        //הצגת כפתור סיום
+    <button class="btn-primary border-0 p-3 mt-2 mb-2 centerObject" @onclick="endVid">סיימתי</button>
+    }
+}
+@* ווידאו *@
+<div class="d-flex justify-content-center">
+    <video id="videoFeed" class="col-lg-7 col-md-10 col-12" muted />
+</div>
+
+
+
+@* לא בשימוש כרגע- הצגת פריים ספציפי *@
+@if (!string.IsNullOrEmpty(frameUri))
+{
+    <img src="@frameUri" />
+}
+
+@code {
+    //איפוס משתנים
+    string subject = "";
+    private string frameUri;
+    bool save = false;
+    bool vidOn = false;
+    string message = "";
+    //הפעלה של המצלמה דרך JS
+
+    protected async Task startVid()
+    {
+        if (subject != "")
+        {
+            //הוספת זמן
+            string date = DateTime.Today.ToShortDateString();
+            //יצירת מופע של מידע לפרזנטציה
+            PresentationInfo newP = new PresentationInfo();
+            newP.Date = date;
+            newP.Name = subject;
+            //ניסיון קריאה לשרת
+            try
+            {
+                save = true;
+                //פרזנטציה חדשה
+                var getResponse = await Http.PostAsJsonAsync("api/FireBase/NewP", newP);
+                Http.DefaultRequestHeaders.ConnectionClose = true;
+                //קריאה להדלקת המצלמה
+                await JSRuntime.InvokeVoidAsync("startVideo", "videoFeed", "audioFeed");
+                vidOn = true;
+
+            }
+            catch
+            {
+                //הודעת שגיאה
+                message = "קרתה תקלה, אי אפשר כרגע להתחיל את הפרזנטציה";
+            }
+
+
+
+        }
+        //אם לא נבחר נושא
+        else
+        {
+            message = "לא בחרת נושא לפרזנטציה";
+
+        }
+    }
+    //לחיצה על כפתור סיום
+    protected async Task endVid()
+    {
+        await JSRuntime.InvokeVoidAsync("endVideo", "videoFeed");
+        navigat.NavigateTo("/MainPage");
+
+    }
+
+    //צילום פריים- לא בשימוש
+    //private async Task CaptureFrame()
+    //{
+    //    await JSRuntime.InvokeAsync<String>("getFrame", "videoFeed", "currentFrame", DotNetObjectReference.Create(this));
+    //}
+
+    //עיבוד תמונה- כרגע לא בשימוש
+    [JSInvokable]
+    public void ProcessImage(string imageString)
+    {
+        byte[] imageData = Convert.FromBase64String(imageString.Split(',')[1]);
+
+        //Do image processing here
+
+
+
+        using (var image = Image.Load(imageData))
+        {
+            image.Mutate(x => x
+                .Flip(FlipMode.Horizontal) //To match mirrored webcam image
+            );
+            frameUri = image.ToBase64String(JpegFormat.Instance);
+        }
+    }
+}

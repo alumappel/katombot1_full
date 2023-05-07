@@ -1,0 +1,547 @@
+﻿@page "/MainPage"
+@inject HttpClient Http
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Threading.Tasks
+@using fireBaseHandler.Shared.Entities;
+@using fireBaseHandler.Client.Components
+@inject IJSRuntime JSRuntime
+@inject NavigationManager navigat
+
+@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+@using fireBaseHandler.Client.Services
+@inject IsLog logged
+<Animate Animation="Animations.FadeDown" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(0.25)">
+
+    <div class="d-flex flex-column" style="margin-right:4%;margin-top:-2em">
+
+        <div class="bg d-flex justify-content-start align-items-start flex-row mt-5" style="padding-right: 4%; gap: 2em; width: @width; max-width:100%">
+            <div class="profilePic">
+                <div>
+                    <img src="@myFileImage" />
+                </div>
+                <div class="proBtns" style="position:absolute;overflow:unset;">
+                    @if (myFileImage != defultImg)
+                    {
+                        <button class="cirbtn small" style="top:0em;right:0em" @onclick="delimg"><span class="icon-trash-icon"></span></button>
+
+                    }
+                    <button onclick="document.getElementById('FileInputID').click()" style="bottom:0em;left:0em" class="cirbtn"><span class="icon-img-icon"></span></button>
+                    <InputFile id="FileInputID" OnChange="UploadFile" hidden />
+                </div>
+            </div>
+            <div>
+                <h3 class="text-right">היי @username,</h3>
+                @if (newu)
+                {
+
+                    <p>
+                        איזה כיף שהצטרפת לקתימבוט!<br />
+                        ביחד נעזור לך להעביר פרזנטציה מושלמת.
+                    </p>
+                }
+                else
+                {
+                    <p>כיף לראות אותך!</p>
+                    <a href="./Presentation" class="btn-primary centerObject mb-2 mt-2" id="newPBtn" style="padding: 3% 8%;width: max-content;">פרזנטציה חדשה</a>
+                }
+            </div>
+        </div>
+    </div>
+</Animate>
+@if (!newu)
+{
+    <Animate Animation="Animations.FadeUp" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(0.75)">
+
+        @* יצירת כרטיסיות לפי מספר הפרזנטציות שנעשו *@
+        <h4 style="margin-top: 2em; margin-right: 4%;">הפרזנטציות שלך:</h4>
+    </Animate>
+}
+@if (!cardsLoad)
+{
+    <Animate Animation="Animations.FadeUp" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(0.75)">
+
+        <div class="cardrow row" style="margin-top: 1em; margin-right:4%">
+            @for (int i = 0; i < 5; i++)
+            {
+                <div class="bg skelton col-10 col-lg-2 m-lg-1 mb-2 mt-2 col-md-3 m-md-1 border-0">
+                    <div class="skelrow" style="width: 9em; height: 1.5em;"></div>
+                    <div class="skelrow" style="width:8em"></div>
+                    <div class="skelCir">
+                        <div class="skelbtn"></div>
+                    </div>
+
+                </div>
+            }
+        </div>
+
+    </Animate>
+}
+else
+{
+    @if (!newu)
+    {
+
+
+        @if (!allPres)
+        {
+<Animate Animation="Animations.FlipUp" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(0.25)">
+    <div class="flex-column">
+        <div class="row" style="align-items: center;">
+            @if (@movecard > 0)
+            {
+                <a class="inconBTN rt" id="rtCardCru" style="cursor: pointer; text-decoration: none; outline: none; background: none; height: fit-content; font-size: 26pt; position: absolute;" @onclick="moveback"><span style="color: var(--darkpurple);" class="icon-more-left"></span></a>
+
+            }
+            <a href="./Presentation" class="bg card addpres" id="addpresBtn"><span class="icon-plus-icon" style="font-size: 6em; color: var(--gold);"></span></a>
+
+            <div id="cardCru" style="width: 54em; overflow-x: scroll; min-width: 67%;max-width:90%;">
+
+                <div class="cardrow row" style="margin-top: 1em;margin-right: 1%;transition: all .4s ease-in-out;gap:1em; position:relative;transform:translateX(@moves)">
+                    @foreach (NewPinfo pres in presList)
+                    {
+
+                        <Copy pNum="@(presList.IndexOf(pres) + 1)" allPres="newDelFromCard" pName=@pres.Name pDate=@pres.Date pScore="@pres.Score" user="@user" myp="@pres" />
+                    }
+                </div>
+
+            </div>
+            @if (presList.Count - movecard > 4)
+            {
+                <a class="inconBTN lt" id="ltCardCruBig" style="cursor:pointer;text-decoration:none;border: none; outline: none; background: none; height: fit-content; font-size: 26pt;" @onclick="moveall"><span style="color: var(--darkpurple);" class="icon-more-right"></span></a>
+            }
+        </div>
+
+        <div id="smallBtns">
+            @if (presList.Count - movecard > 1)
+            {
+                <a class="inconBTN lt" id="ltCardCru" style="left:1em;cursor:pointer;text-decoration:none;border: none; outline: none; background: none; height: fit-content; font-size: 26pt;" @onclick="moveall"><span style="color: var(--darkpurple);" class="icon-more-right"></span></a>
+            }
+            else
+            {
+                <div id="whiteSpace"></div>
+            }
+            @if (@movecard > 0)
+            {
+                <a class="inconBTN rt" id="rtCardCruSm" style="right:1em;cursor: pointer; text-decoration: none; outline: none; background: none; height: fit-content; font-size: 26pt; position: absolute;" @onclick="moveback"><span style="color: var(--darkpurple);" class="icon-more-left"></span></a>
+            }
+        </div>
+
+    </div>      
+    @if (presList.Count > 4)
+    {
+        <button class="btn-primary" id="showAllPresBtnBig" @onclick="ShowAll" style="border: none; outline: none;  position: relative;">לכל הפרזנטציות <span class="icon-arrow-left-icon moveani"></span></button>
+    }
+
+    @if (presList.Count > 1)
+    {
+        <button class="btn-primary" id="showAllPresBtn" @onclick="ShowAll" style="border: none; outline: none;  position: relative;">לכל הפרזנטציות <span class="icon-arrow-left-icon moveani"></span></button>
+
+    }
+
+</Animate>
+        }
+    }
+    @if (allPres )
+    {
+        <Animate Animation="Animations.FlipDown" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(0.25)">
+
+            <div class="d-flex justify-content-start align-content-center align-items-center" style="margin-top: 2%; gap: 1em; flex-direction: column;">
+                <table>
+                    <tr>
+                        <th>תאריך</th>
+                        <th>נושא</th>
+                        <th>ציון</th>
+                        <th>צפיה</th>
+                        <th class="export">ייצוא</th>
+                        <th>מחיקה</th>
+                    </tr>
+                    @foreach (NewPinfo pres in presList)
+                    {
+
+
+                        <tr>
+
+                            <td>@pres.Date</td>
+
+
+                            <td>@pres.Name</td>
+                            <td>@pres.Score</td>
+                            @*<td><WatchBtn myp="pres.ID"></WatchBtn></td>*@
+                            <td>
+                                <button @onclick="@(() => watch(pres.ID))"><span class=" icon-watch-icon"></span></button>
+                            </td>
+                            <td class="export"><button @onclick="@(() => pdf(pres.ID))"><span class="icon-pdf-icon"></span></button></td>
+                            <td><button @onclick="@(() => p2del(pres))"><span class="icon-trash-icon"></span></button></td>
+                        </tr>
+                    }
+
+                </table>
+                @if (del)
+                {
+
+
+
+<div class="delprestable">
+
+                    <div class="bg d-flex">
+                        @if (lodeDel)
+                    {
+                    <Loading></Loading>
+                    }
+                    else { 
+                        <a id="x" @onclick="closedel" class="icon-x-icon return" style="text-decoration: none; color: var(--textC);top:0.7em;left:0.7em;height:1.7em;width:1.7em;"></a>
+                        <div class="deldiv" style="width: 20em; height: 10em; justify-content: space-between;">
+                            <h5 style="font-size:14pt;text-align:center;width:16em;">
+                                למחוק את הפרזנטציה<br />
+                                <b style="color:var(--darkpurple);">@delP.Name</b>?
+                            </h5>
+                            <p style="font-size:12pt;text-align:center">לא ניתן לשחזר פרזנטציה שנמחקה</p>
+                            <div class="card-buttons" style="align-items: center; justify-content: center;">
+                                <button class="outbtn btn-primary" @onclick="delete" style="border: 3px solid var(--purple);width:6em;">למחוק</button>
+                                <button @onclick="closedel" class="btn-primary border-0" style="width: 6em;">לא למחוק</button>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                    
+
+            </div>
+                        }
+                        <button class="btn-primary" @onclick="ShowAll" style="border:none;outline:none;align-self:center"><span class="icon-arrows-2-icon moveani" style="transform:scaleY(-1);width: 2em;text-align: center;"></span></button>
+
+                </div>
+
+
+        </Animate>
+    }
+
+    @if (presList.Count > 0)
+    {
+        int highS = (int)Math.Round(@high.Score);
+        <Animate Animation="Animations.Fade" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(0.5)">
+           
+            <HighScore allScore="allScore" fiveLastScores="fiveLastScores" high="highS" progress="@progress"></HighScore>
+        </Animate>
+    }
+
+    @if (newu)
+    {
+        <Animate Animation="Animations.Fade" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(0.5)">
+            <div class="bg row" id="newUDiv" style="">
+                <div class="col-12 col-sm-5 offset-1" style="padding: 0 1%">
+                    <h4 style="margin-top:0em">איך זה עובד?</h4>
+                    <p>
+                        בעזרת המצלמה והמיקרופון שלך נקבל נתונים על התנועה, המבט והדיבור שלך.
+                        בעזרת הצמיד שלך אנחנו נוכל לקבל גם את המדדים הגופניים שלך.
+                        ביחד כל המדדים ישוקללו לציון כללי ונשלח לך משוב מפורט על כל חלק בפרזנטציה
+                    </p>
+                    <a id="newUBTN" href="./Presentation" class="btn-primary mb-2 mt-2" style="padding:4%;">אני רוצה להתחיל</a>
+                </div>
+                <div class="col-12 col-sm-4 offset-1">
+                    <h4>איך להשתמש בקתימבוט?</h4>
+                    <div class="h-100 howto">
+                        <div>
+                            <img src="./images/start.svg" />
+                            <p>להפעיל באתר</p>
+                        </div>
+                        <img src="./images/arrow-down.svg" style="transform: translateY(1em);" />
+                        <div>
+                            <img src="./images/connect.svg" />
+                            <p>להתחבר לצמיד</p>
+                        </div>
+                        <img src="./images/arrow-down.svg" style="transform: translateY(-0.5em) scale(1,-1) rotate(45deg);" />
+                        <div style=" margin: 0 1%;">
+                            <img src="./images/present.svg" />
+                            <p>להעביר פרזנטציה </p>
+                        </div>
+                        <img src="./images/arrow-down.svg" style="transform: translateY(1em);" />
+                        <div>
+                            <img src="./images/score.svg" />
+                            <p>לקבל משוב</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Animate>
+    }
+    <TipRow></TipRow>
+}
+
+
+@code {
+    LogInData user = new LogInData();
+    string username = "";
+    bool log = false;
+    bool allPres = false;
+    //הגדרת משתנים
+    string message = "";
+    bool cardsLoad = false;
+    List<int> fiveLastScores = new List<int>();
+    List<NewPinfo> presList = new List<NewPinfo>();
+    List<Measure> allScore = new List<Measure>();
+    string moves = "0em";
+    int movecard = 0;
+    string progress = "";
+    NewPinfo high = new NewPinfo();
+    bool newu;
+    string width = "23em";
+    string defultImg = "./images/profile.svg";
+    string myFileImage = "./images/profile.svg";
+    List<string> DeletedImages = new List<string>();
+    bool del = false;
+    NewPinfo delP;
+    long maxFileSize = 4194304;
+    bool lodeDel = false;
+    string msg = "";
+
+    //פונקציה הפועלת מיד בעליית הדף
+    protected override async Task OnInitializedAsync()
+    {
+        sessionStorage.SetItem("show", 0);
+        sessionStorage.SetItem("newPre", false);
+        sessionStorage.SetItem("gototip", "./MainPage");
+        logged.isLog = true;
+        user = sessionStorage.GetItem<LogInData>("user");
+
+        newu = sessionStorage.GetItem<bool>("isnew");
+        if (newu)
+        {
+            width = "32em";
+            sessionStorage.SetItem("pcount", 0);
+
+        }
+        if (user == null)
+        {
+            navigat.NavigateTo("./LogIn");
+        }
+        else
+        {
+
+
+            username = user.FirstName;
+            myFileImage = user.Pic;
+            if (!newu)
+            {
+
+                try
+                {
+                    //קבלת כל הפרזנטציות שנעשו
+                    var getResponse = await Http.GetAsync("api/FireBase/GetAllfix/" + user.ID.ToString());
+                    Http.DefaultRequestHeaders.ConnectionClose = true;
+                    presList = getResponse.Content.ReadFromJsonAsync<List<NewPinfo>>().Result;
+                    presList.Reverse();
+                    sessionStorage.SetItem("pcount", presList.Count);
+                }
+                catch
+                {
+                    //הודעת שגיאה
+                    message = "לא הצלחתי למצוא את הפרזנטציות שלך";
+                }
+
+                if (presList.Count > 0)
+                {
+                    NewPinfo best = new NewPinfo() { Score = 0, Move = -1, Hands = -1, Look = -1, Voice = -1 } ;
+
+                    Measure Lookmeasure = new Measure() { score = -1,link="#", Mname= "שינוי כיוון מבט", Micon= "icon-watch-icon", num=2 };
+                    Measure MoveMeasure = new Measure() { score = -1, link = "#", Mname = "תנועה בחלל", Micon = "icon-foot-icon", num = 1 };
+                    Measure HandsMeasure = new Measure() { score = -1, link = "#", Mname = "תנועות ידיים", Micon = "icon-hans-icon", num = 1 };
+                    Measure Voicemeasure = new Measure() { score = -1, link = "#", Mname = "שימוש בדיבור", Micon = "icon-mic-icon", num = 0 };
+
+                    foreach (NewPinfo pr in presList)
+                    {
+                        if (presList.IndexOf(pr) < 5)
+                            fiveLastScores.Add(Convert.ToInt16(pr.Score));
+                        if (best.Score < pr.Score)
+                            best = pr;
+                        if (best.Score < pr.Score)
+                            best.Score = pr.Score;
+                        if (best.Look < pr.Look)
+                            best.Look = pr.Look;
+                        if (best.Move < pr.Move)
+                            best.Move = pr.Move;
+                        if (best.Hands < pr.Hands)
+                            best.Hands = pr.Hands;
+                        if (best.Voice < pr.Voice)
+                            best.Voice = pr.Voice;
+                    }
+
+                    if (fiveLastScores.Count > 1)
+                    {
+                        int change = fiveLastScores[0] - fiveLastScores[fiveLastScores.Count - 1];
+                        if (change > 0)
+                            progress = "בזמן האחרון השתפרת ב" + Math.Abs(change).ToString() + "%";
+                        if (change < 0)
+                            progress = "בזמן האחרון הייתה ירידה של " + Math.Abs(change).ToString() + "% בציון";
+                    }
+                    high.Score = best.Score;
+                    Voicemeasure.score = (int)Math.Round(best.Voice);
+                    Lookmeasure.score = (int)Math.Round(best.Look);
+                    HandsMeasure.score = (int)Math.Round(best.Hands);
+                    MoveMeasure.score = (int)Math.Round(best.Move);
+                    allScore.Add(Voicemeasure);
+                    allScore.Add(Lookmeasure);
+                    allScore.Add(HandsMeasure);
+                    allScore.Add(MoveMeasure);
+                    sessionStorage.SetItem("best", best);
+                    sessionStorage.SetItem("fiveLast", fiveLastScores);
+                }
+            }
+            cardsLoad = true;
+        }
+
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("stopS");
+        }
+        catch { }
+    }
+    protected void ShowAll()
+    {
+        if (!allPres)
+            allPres = true;
+        else
+            allPres = false;
+    }
+    protected void moveall()
+    {
+        movecard++;
+        moves = (movecard * 13).ToString() + "em";
+    }
+    protected void moveback()
+    {
+        movecard--;
+        moves = (movecard * 13).ToString() + "em";
+    }
+
+    private async Task UploadFile(InputFileChangeEventArgs e)
+    {
+        var imageFiles = e.GetMultipleFiles();
+        foreach (var file in imageFiles)
+        {
+            if (file.Size <= maxFileSize)
+            {
+                var buffer = new byte[file.Size];
+                await file.OpenReadStream(maxFileSize).ReadAsync(buffer);
+                var imageBase64 = Convert.ToBase64String(buffer);
+                var saveResponse = await Http.PostAsJsonAsync("api/FireBase/upload/u" + user.ID.ToString(), imageBase64);
+
+                if (saveResponse.IsSuccessStatusCode == true)
+                {
+                    string resizeUrl = saveResponse.Content.ReadAsStringAsync().Result;
+                    myFileImage = resizeUrl;
+                    if (user.Pic != defultImg)
+                    {
+                        try
+                        {
+                            var delResponse = await Http.PostAsJsonAsync("api/FireBase/deleteImages", user.Pic);
+                        }
+                        catch { }
+                    }
+                    user.Pic = myFileImage;
+                    sessionStorage.SetItem("user", user);
+                }
+            }
+        }
+    }
+
+    private async Task delimg()
+    {
+
+        var delResponse = await Http.PostAsJsonAsync("api/FireBase/deleteImages/u" + user.ID.ToString(), user.Pic);
+        if (delResponse.IsSuccessStatusCode)
+        {
+            user.Pic = defultImg;
+            sessionStorage.SetItem("user", user);
+            myFileImage = defultImg;
+        }
+    }
+    protected void watch(int p)
+    {
+        sessionStorage.SetItem("myP", p.ToString());
+        sessionStorage.SetItem("newPre", false);
+        navigat.NavigateTo("./Feedback");
+    }
+    protected async Task pdf(int p)
+    {
+        sessionStorage.SetItem("pres", p);
+        sessionStorage.SetItem("user", user);
+        sessionStorage.SetItem("url", "./MainPage");
+        navigat.NavigateTo("./Pdf/"+p.ToString());
+    }
+
+    protected void closedel()
+    {
+        del = false;
+    }
+    protected void opendel()
+    {
+        del = true;
+
+    }
+    protected void p2del(NewPinfo p)
+    {
+        delP = p;
+        del = true;
+
+    }
+
+    protected void newDelFromCard(List <NewPinfo> newall)
+    {
+        presList = newall;
+        fiveLastScores = new List<int>();
+        for (int i = 0; i<5; i++)
+        {
+            if (i < presList.Count)
+                fiveLastScores.Add((int)Math.Round(presList[i].Score));
+        }
+        if (movecard > 0)
+            moveback();
+    }
+    //protected async void delfromcard(NewPinfo p)
+    //{
+    //    foreach (NewPinfo pres in presList)
+    //    {
+    //        if (pres.ID == p.ID)
+    //        {
+    //            delP = p;
+    //            break;
+    //        }
+    //    }
+    //    await delete();
+    //}
+    protected async Task delete()
+    {
+        del = true;
+        lodeDel = true;
+        var getResponse = await Http.GetAsync("api/FireBase/DelEmpty/u" + user.ID.ToString() + "/" + delP.ID.ToString());
+        try
+        {
+            List<NewPinfo> newall = getResponse.Content.ReadFromJsonAsync<List<NewPinfo>>().Result;
+            newall.Reverse();
+            presList = newall;
+
+        }
+        catch {
+            msg = "תקלה";
+        }
+        fiveLastScores = new List<int>();
+        for (int i = 0; i < 5; i++)
+        {
+            if (i < presList.Count)
+                fiveLastScores.Add((int)Math.Round(presList[i].Score));
+        }
+        if (movecard > 0)
+            moveback();
+        lodeDel = false;
+        del = false;
+        delP = new NewPinfo();
+
+
+
+    }
+
+}

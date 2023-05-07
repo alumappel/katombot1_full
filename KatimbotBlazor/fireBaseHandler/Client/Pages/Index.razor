@@ -1,0 +1,121 @@
+﻿
+@page "/"
+@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+@inject NavigationManager navigat
+@inject IJSRuntime JSRuntime
+@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+
+<Animate Animation="Animations.FadeUp" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(0.25)">
+    <div class="bg section">
+        <Animate Animation="Animations.FadeDown" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(1)">
+
+            <div class="row m-0">
+                @*<a href="./Try" style="position:absolute">try</a>*@
+                <div id="logoBig" class="m-auto">
+                    <div id="dot"></div>
+                    <h1 class="">קתימבוט</h1>
+                    <h2>
+                        הערכת מיומנויות הדרכה באמצעות AI
+                    </h2>
+
+                    <a href="./SignUp" class="btn-primary mb-2 align-self-center align-self-lg-end p-3">
+                        אני רוצה לנסות!
+                    </a>
+                </div>
+            </div>
+        </Animate>
+        <Animate Animation="Animations.FadeUp" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(1.5)">
+
+            <div class="row mt-5 mb-3">
+                <div style="margin-left:3em"></div>
+                <div class="col-12 col-sm-5 offset-lg-1 offset-md-0" style="padding: 0 4%">
+                    <h4>מה זה קתימבוט?</h4>
+                    <p style="width: 95%;">
+                        קתימבוט היא מערכת להערכה ואימון של מיומנויות הדרכה. בעזרת קתימבוט ניתן לתרגל פרזנטציה ולקבל משוב מיידי לפי כל הכללים.
+                        כל מה שצריך זה את הצמיד שלנו, מצלמה ומיקרופון, את כל השאר הקתימבוט יעשה.
+                    </p>
+                </div>
+
+                <div class="col-12 col-sm-4 offset-lg-1 offset-md-0">
+                    <h4>איך להשתמש בקתימבוט?</h4>
+                    <div class="h-100 howto">
+                        <div>
+                            <img src="./images/start.svg" />
+                            <p>להפעיל באתר</p>
+                        </div>
+                        <img src="./images/arrow-down.svg" style="transform: translateY(1em);" />
+                        <div>
+                            <img src="./images/connect.svg" />
+                            <p>להתחבר לצמיד</p>
+                        </div>
+                        <img src="./images/arrow-down.svg" style="transform: translateY(-0.5em) scale(1,-1) rotate(45deg);" />
+                        <div style=" margin: 0 1%;">
+                            <img src="./images/present.svg" />
+                            <p>להעביר פרזנטציה </p>
+                        </div>
+                        <img src="./images/arrow-down.svg" style="transform: translateY(1em);" />
+                        <div>
+                            <img src="./images/score.svg" />
+                            <p>לקבל משוב</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </Animate>
+    </div>
+</Animate>
+<Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(0.5)">
+
+    <div style="margin: 7em 0">
+        <h3 class="mb-3 headlines">למה קתימבוט?</h3>
+        <div class="row mb-5 m-0 d-flex align-content-center justify-content-center">
+            <WhyCard imgsrc="./images/objective.svg" name="אובייקטיבי" txt="המשוב מחושב על פי המדדים שלך ולא לפי שום דבר שנתון לפרשנות"></WhyCard>
+            <WhyCard imgsrc="./images/fast.svg" name="מהיר" txt="המשוב מתקבל מיד לאחר סיום הפרזנטציה"></WhyCard>
+            <WhyCard imgsrc="./images/snowflake.svg" name="אישי" txt="הקתימבוט מתאים את עצמו אליך ונותן לך המלצות אישיות"></WhyCard>
+        </div>
+    </div>
+</Animate>
+<TipRow></TipRow>
+
+
+@if (block)
+{
+<div class="block">
+
+    <h3>
+        איזה כיף שבאת!
+    </h3>
+    אנחנו רואים שנכנסת לקתימבוט מהנייד. כדי לקבל את חוויית השימוש המלאה, אנחנו ממליצים להיכנס לקתימבוט דרך מחשב.
+    <a @onclick="@(()=>block= false)" class="btn-primary" style="text-decoration: none;width:100%">לקתימבוט</a>
+
+</div>
+}
+
+@code {
+    bool block = true;
+    protected override async Task OnInitializedAsync()
+    {
+        bool back = sessionStorage.GetItem<bool>("here");
+        if (back)
+            block = false;
+        else
+            sessionStorage.SetItem("here", true);
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("stopS");
+            var mywidth = await JSRuntime.InvokeAsync<int>("getwidth");
+            sessionStorage.SetItem("width", mywidth);
+
+        }
+        catch { }
+
+        sessionStorage.SetItem("gototip", "./");
+
+    }
+
+
+}

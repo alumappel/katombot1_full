@@ -1,0 +1,33 @@
+﻿<a href="./Feedback#myFeed" class="scoreDiv" @onclick="go">
+    <span class="@icon" style="font-size: 18pt; color: var(--headlinesC);"></span>
+    <span class="score" style="width: 9em; text-align: right;">@scroe% @partName</span>
+    <span class="icon-more-right" style="color: var(--headlinesC); position: relative; left: -5em;"></span>
+</a>
+
+
+
+
+    @code {
+        [Parameter]
+        public string partName { get; set; }
+        [Parameter]
+        public int scroe { get; set; }
+        [Parameter]
+        public string icon { get; set; }
+        [Parameter]
+        public int num { get; set; }
+
+        [Parameter]
+        public EventCallback<int> sec { get; set; }
+
+        protected override async Task OnInitializedAsync()
+        {
+        
+            
+        }
+        public void go()
+        {
+            sec.InvokeAsync(num);
+        }
+
+    }

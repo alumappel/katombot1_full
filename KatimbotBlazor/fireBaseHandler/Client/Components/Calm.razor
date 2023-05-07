@@ -1,0 +1,21 @@
+﻿
+<div class="row" style="display: flex;align-items: center;gap: 0.5em;">
+    <span class="@img" style="
+    font-size: 40pt; color:@mycolor"></span>
+    <span style="width: 4em; font-size:11pt;text-align:right">
+        @min דקות @name
+    </span>
+</div>
+
+@code {
+    [Parameter]
+    public double min { get; set; }
+
+    [Parameter]
+    public string img { get; set; }
+    [Parameter]
+    public string name { get; set; }
+
+    [Parameter]
+    public string mycolor { get; set; }
+}

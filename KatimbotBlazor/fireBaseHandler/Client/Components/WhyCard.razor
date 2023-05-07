@@ -1,0 +1,15 @@
+﻿<div class="whyCard col-sm-3 col-10 m-3">
+    <p>
+        <img src=@imgsrc />
+        <b>@name</b><br />
+        @txt
+    </p>
+</div>
+@code {
+    [Parameter]
+    public string name { get; set; }
+    [Parameter]
+    public string txt { get; set; }
+    [Parameter]
+    public string imgsrc { get; set; }
+}

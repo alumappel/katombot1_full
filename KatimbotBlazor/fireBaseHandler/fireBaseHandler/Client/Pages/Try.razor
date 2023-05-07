@@ -1,0 +1,30 @@
+﻿@page "/Try"
+<h3>Try</h3>
+@inject IJSRuntime JSRuntime
+@inject HttpClient Http
+@inject NavigationManager navigat
+
+@using SixLabors.ImageSharp
+@using SixLabors.ImageSharp.Processing;
+@using SixLabors.ImageSharp.Formats.Jpeg
+@using System.IO
+@using Microsoft.Extensions.Configuration;
+@using Microsoft.Extensions.DependencyInjection;
+@using Microsoft.Extensions.Logging;
+@using System;
+@using System.Collections.Generic;
+@using System.Linq;
+@using System.Net.Http;
+@using System.Threading;
+@using System.Threading.Tasks;
+@using fireBaseHandler.Shared.Entities;
+
+
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+
+        await JSRuntime.InvokeVoidAsync("findFace");
+    }
+}

@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_PublishTargetUrl>C:\Users\נטע\Documents\תואר\שנה ג\idk\fireBaseHandler\Client\bin\Release\net5.0\browser-wasm\publish\</_PublishTargetUrl>
+    <History>True|2022-03-18T00:31:15.1228348Z;True|2022-03-16T16:42:20.2341259+02:00;True|2022-03-13T10:15:28.5409866+02:00;</History>
+  </PropertyGroup>
+</Project>

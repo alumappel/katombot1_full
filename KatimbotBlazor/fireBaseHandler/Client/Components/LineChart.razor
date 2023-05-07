@@ -1,0 +1,31 @@
+﻿@inject IJSRuntime JSRuntime
+
+<canvas id="@id" style="width:@width; height:@height"></canvas>
+<div style="width: @width;display: flex;justify-content: space-between;">
+    @foreach (int num in nums)
+    {
+        <span>@num</span>
+    }
+
+</div>
+
+@code {
+        [Parameter]
+        public string width { get; set; }
+        [Parameter]
+        public string height { get; set; }
+        [Parameter]
+        public string id { get; set; }
+        [Parameter]
+        public List<int> nums { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        List<int> all = nums;
+            await JSRuntime.InvokeVoidAsync("drawChart", id, all);
+        
+
+    }
+
+
+}

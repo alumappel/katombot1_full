@@ -1,0 +1,190 @@
+﻿@using fireBaseHandler.Shared.Entities;
+@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+@inject NavigationManager navigat
+@inject IJSRuntime JSRuntime
+@using fireBaseHandler.Client.Services
+@inject Services.IsLog logged
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light" style="z-index: 3;">
+    <div class="container-fluid">
+        <a class="navbar-brand" id="logo" href="./"><img src="./images/logo.png" /></a>
+        <a id="toggleBtn" @onclick="switchMenu"></a>
+        @if (open ==true)
+        {
+            navClass = "openH";
+        }
+        else
+        {
+            navClass = "closeH";
+        }
+
+        <div class="container-fluid @navClass" id="navbarNav">
+            <div id="hamburger"><div class="pas" id="oneP"></div><div class="pas" id="twoP"></div><div class="pas" id="threeP"></div></div>
+            <div class="navShowOrNot">
+                <ul class="navbar-nav navbar-expand-sm ">
+
+                    <li class="nav-item" id="aboutbtn" style="cursor:pointer">
+                        <a class="nav-link btn-primary" style="cursor:pointer;" @onclick="showAbout">אודות</a>
+                    </li>
+                    <li class="nav-item ">
+                        <a class="nav-link btn-primary" id="navMain" style="display:none" @onclick="(()=>open=false)" href="./MainPage">איזור אישי</a>
+                    </li>
+                    <li class="nav-item">
+                        <button id="navLogin" class="nav-link btn-primary goldBtn" @onclick="logout">התחברות</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="about-bg @c" id="aboutWin">
+        <div class="about bg">
+            <a id="x" @onclick="hideabout" class="icon-x-icon return" style="text-decoration: none; color: var(--textC);cursor:pointer"></a>
+            <h3 style="color: var(--headlinesC); margin-bottom: -1em;">אודות</h3>
+            <div id="logoBig" class="m-auto">
+                <div id="dot"></div>
+                <h4 style="color: var(--headlinesC);">קתימבוט</h4>
+                <h5 style="font-size: 13pt; color: var(--purple); ">
+                    מערכת לתרגול מיומנויות הדרכה באמצעות IOT
+                </h5>
+            </div>
+            <h5 style="text-align: center; font-size: 14pt;">
+                פרויקט גמר, תשפ"ב <br />
+                <a style="color: var(--darkpurple);" href="https://www.hit.ac.il/telem/overview">הפקולטה לטכנולוגיות למידה</a>
+            </h5>
+            <div class="row" id="aboutNames" style="gap:1em;">
+                <img src="./images/LogoNew.svg" style="width:8em;" />
+                <div>
+                    <p>
+                        <b>צוות הפרויקט:</b><br />
+                        דן גריס ונטע שורק
+                    </p>
+                    <p>
+                        <b>מנחי הפרויקט:</b><br />
+                        ינאי זגורי וד"ר דן כהן וקס
+                    </p>
+                    <p>
+                        <b>ליווי טכנולוגי:</b><br />
+                        עומרי כהנא
+                    </p>
+                </div>
+            </div>
+            <p>
+                © כל הזכויות שמורות למכון טכנולוגי חולון HIT
+            </p>
+        </div>
+    </div>
+
+
+</nav>
+
+
+
+
+@code {
+    string c = "hide";
+    bool log = false;
+    LogInData user;
+    string navClass = "closeH";
+    bool open = false;
+    string a = "";
+    protected void switchMenu()
+    {
+        if (open == false)
+        {
+            open = true;
+            navClass = "openH";
+        }
+        else
+        {
+            open = false;
+            navClass = "closeH";
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        navigat.LocationChanged += LocationChanged;
+        //logged.OnChange += check;
+    }
+    private void check()
+    {
+        user = sessionStorage.GetItem<LogInData>("user");
+        if (user != null)
+            log = true;
+        else
+            log = false;
+    }
+    protected override async void OnAfterRender(bool firstRender)
+    {
+        //   navClass = "closeH";
+        //  open = false;
+        user = sessionStorage.GetItem<LogInData>("user");
+        if (user != null)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("login");
+                log = true;
+            }
+            catch
+            {
+
+            }
+        }
+        else
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("logout");
+                log = false;
+            }
+            catch { };
+        }
+    }
+    protected  void LocationChanged(object sender, LocationChangedEventArgs e)
+    {
+        open = false;
+        navClass = "closeH";
+
+
+    }
+    protected void showAbout()
+    {
+        open = false;
+        navClass = "closeH";
+        c = "show";
+    }
+    protected void hideabout()
+    {
+        c = "hide";
+    }
+    protected private async Task logout()
+    {
+        var user = sessionStorage.GetItem<LogInData>("user");
+        if (user != null)
+        {
+            sessionStorage.RemoveItem("user");
+            log = false;
+            try
+            {
+
+                await JSRuntime.InvokeVoidAsync("logout");
+            }
+            catch { }
+            navigat.NavigateTo("./");
+        }
+        else
+        {
+
+            navigat.NavigateTo("./LogIn");
+
+        }
+    }
+    protected private void login()
+    {
+
+        navigat.NavigateTo("./LogIn");
+    }
+
+}

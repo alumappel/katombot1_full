@@ -1,0 +1,5 @@
+﻿<StaticWebAssets Version="1.0">
+  <ContentRoot BasePath="/" Path="C:\Users\נטע\Documents\תואר\שנה ג\idk\fireBaseHandler\Client\bin\Release\net5.0\wwwroot\" />
+  <ContentRoot BasePath="/" Path="C:\Users\נטע\Documents\תואר\שנה ג\idk\fireBaseHandler\Client\obj\Release\net5.0\scopedcss\bundle\" />
+  <ContentRoot BasePath="_content/BlazorAnimate" Path="C:\Users\נטע\.nuget\packages\blazoranimate\3.0.0\build\..\staticwebassets\" />
+</StaticWebAssets>

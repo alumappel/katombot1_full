@@ -1,0 +1,45 @@
+﻿@inject IJSRuntime JSRuntime
+
+<div style="position:relative;display:flex;justify-content:center;">
+    <div class="bgcir bg" style="width: @cir;height: @cir;margin: @mg;box-shadow: var(--shadowVerySmall);"></div>
+    <canvas id=@myid class="circleGraphic" style="width:@width;height:@width"></canvas>
+</div>
+
+@code {
+
+    [Parameter]
+    public string myid { get; set; }
+    [Parameter]
+    public int score { get; set; }
+    [Parameter]
+    public string width { get; set; }
+    [Parameter]
+    public int lineWidth { get; set; }
+    [Parameter]
+    public int goldCir { get; set; }
+    double cirwidth = 0;
+    double margin = 0;
+    string cir = "";
+    string mg = "";
+    string wi;
+    double w;
+    protected override async Task OnInitializedAsync()
+    {
+        int em = width.Length - 2;
+        wi = width.Substring(0, em);
+         w = Convert.ToDouble(wi);
+        cirwidth = w * 0.8;
+        margin = w * 0.1;
+        cir = cirwidth.ToString() + "em";
+        mg = margin.ToString() + "em";
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JSRuntime.InvokeVoidAsync("scoreCanAni", score, myid,lineWidth,goldCir, 100);
+
+    }
+
+
+}

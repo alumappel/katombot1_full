@@ -1,0 +1,143 @@
+﻿@page "/SignUp"
+
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Threading.Tasks
+@using fireBaseHandler.Shared.Entities;
+@using fireBaseHandler.Client.Components
+@inject IJSRuntime JSRuntime
+@inject NavigationManager navigat
+@inject HttpClient Http
+
+@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+
+    <Animate Animation="Animations.FadeUp" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(0.5)">
+        <div class="form-div bg d-flex justify-content-center align-items-center flex-column m-auto mt-5">
+
+            <h3 class="mb-4">נעים להכיר!</h3>
+
+            <EditForm Model="@newUser" OnValidSubmit="SubmitSignUp">
+                <DataAnnotationsValidator  />
+                <div>
+                    <fieldset>
+                        <label for="fname">שם פרטי</label>
+                        <InputText id="fname" @bind-Value="@newUser.FirstName" class="inputTxt border-0" />
+                        <ValidationMessage For="@(() => newUser.FirstName)"   />
+                    </fieldset>
+
+
+                    <fieldset>
+                        <label for="lname">שם משפחה</label>
+                        <InputText id="lname" @bind-Value="@newUser.LastName" class="inputTxt border-0" />
+                        <ValidationMessage For="@(() => newUser.LastName)"   />
+                    </fieldset>
+                </div>
+                <div>
+                    <fieldset>
+                        <label for="mail">מייל</label>
+                        <InputText id="mail" @bind-Value="@newUser.Mail" class="inputTxt border-0" />
+                        <ValidationMessage For="@(() => newUser.Mail)"   />
+                    </fieldset>
+
+                    <fieldset>
+                        <label for="vaildM">אימות מייל</label>
+                        <InputText id="vaildM" @bind-Value="@newUser.ValidMail" class="inputTxt border-0" />
+                        <ValidationMessage For="@(() => newUser.ValidMail)"   />
+                    </fieldset>
+                </div>
+                <div>
+                    <fieldset>
+                        <label for="password">סיסמה</label>
+                        <InputText id="password" type="password" @bind-Value="@newUser.Password" class="inputTxt border-0" />
+                        <ValidationMessage For="@(() => newUser.Password)"   />
+                    </fieldset>
+                    <fieldset>
+                        <label for="validP">אימות סיסמא</label>
+                        <InputText id="validP" type="password" @bind-Value="@newUser.ValidPassword" class="inputTxt border-0" />
+                        <ValidationMessage For="@(() => newUser.ValidPassword)"   />
+                    </fieldset>
+                </div>
+                <br />
+
+                <p style="font-size:10pt; text-align:center;">   נרשמת כבר? <span class="link" @onclick="signIn">התחברות</span></p>
+                <input type="Submit" Value="כניסה" class="btn-primary centerObject border-0 p-0" style="margin-top: 0.5em;" />
+            </EditForm>
+            @if (message != "")
+            {
+        <p style="margin-top: 1em; margin-bottom: 0;font-size:12pt;"></p>
+            @message
+            }
+
+            @if (load)
+            {
+                <div class="loading">
+                    <div class="d-flex justify-content-center mt-2 mb-2">
+                        <div class="lds-default centerObject"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+                    </div>
+                </div>
+            }
+        </div>
+
+    </Animate>
+
+    @code {
+        bool load = false;
+        NewUser newUser = new NewUser();
+        string message = "";
+        bool sign = false;
+        LogInData user;
+        protected override async Task OnInitializedAsync()
+        {
+            var user = sessionStorage.GetItem<LogInData>("user");
+            if (user != null)
+            {
+                navigat.NavigateTo("./MainPage");
+            }
+        }
+        private protected async Task SubmitSignUp()
+        {
+            //  LogInData user;
+
+            var getResponse = await Http.PostAsJsonAsync("api/FireBase/signup", newUser);
+            Http.DefaultRequestHeaders.ConnectionClose = true;
+            try
+            {
+                sessionStorage.SetItem("isnew", true);
+
+                user = await getResponse.Content.ReadFromJsonAsync<LogInData>();
+
+                sessionStorage.SetItem("user", user);
+                await JSRuntime.InvokeVoidAsync("login");
+
+                navigat.NavigateTo("./MainPage");
+
+            }
+            catch
+            {
+                var res = await getResponse.Content.ReadAsStringAsync();
+                switch (res)
+                {
+                    case "exist user":
+                        message = "המייל כבר קיים במערכת";
+                        break;
+                    default:
+                        message = "קרתה תקלה";
+                        break;
+                }
+            }
+        }
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("stopS");
+            }
+            catch { }
+        }
+        private void signIn()
+        {
+            navigat.NavigateTo("./LogIn");
+
+        }
+
+    }

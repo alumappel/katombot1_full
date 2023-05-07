@@ -1,0 +1,657 @@
+﻿
+@page "/Feedback"
+@using fireBaseHandler.Shared.Entities;
+@inject HttpClient Http
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Threading.Tasks
+
+
+@inject IJSRuntime JSRuntime
+@inject NavigationManager navigat
+
+@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+@* הודעה *@
+
+<Animate Animation="Animations.FadeUp" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(0.25)">
+
+    <div class="bg section d-flex justify-content-around align-items-center" id="feedDiv" style="padding: 3%;">
+        <a href="./MainPage" id="x" class="icon-x-icon return" style="text-decoration: none; color: var(--textC)"></a>
+
+        @if (!loadFeedback)
+        {
+            <div class="d-flex flex-column">
+                <p>@user.FirstName עוד רגע נראה את המשוב שלך</p>
+                <div class="justify-content-center mt-2 mb-2 align-items-center">
+                    <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+                </div>
+                @if (back)
+                {
+                    <a href="./MainPage" class="btn-primary border-0 centerObject" style="width:10em">חזרה לפרזנטציות שלך</a>
+                }
+            </div>
+        }
+        else
+        {
+
+            <div>
+                <h4>@user.FirstName, הציון שלך לפרזנטציה הוא:</h4>
+                <ScoreCircle myid="@scoreid" width="23em" goldCir="8" lineWidth="12" score="@myscore" isBig="true"/>
+            </div>
+            <Animate Animation="Animations.FadeUp" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(0.25)">
+
+                <div style="display: flex;flex-direction: column;gap: 1em;">
+          
+                    @if (allscores.Count > 0)
+                    {
+                        bool good = false;
+                        bool weak = false;
+                        @foreach (Measure m in allscores)
+                        {
+                            @if (!good && m.score > 70)
+                            {
+                                <h5 style="font-size:14pt; text-align:right; font-weight:600; line-height:0">החוזקות שלך:</h5>
+                                good = true;
+                            }
+                            @if (!weak && m.score < 70 && m.score>-1)
+                            {
+                                <h5 style="font-size: 14pt; text-align: right; font-weight: 600; line-height: 0; margin-top: 1em; ">כדאי לך לעבוד על:</h5>
+                                weak = true;
+                            }
+                            if (m.score > -1)
+                            {
+                                <ScoreDiv icon="@m.Micon" partName="@m.Mname" scroe="m.score" num="m.num" sec="go"></ScoreDiv>
+
+                            }
+                        }
+                    }
+                </div>
+            </Animate>
+            <a href="./Feedback#myFeed" class="position-absolute" style="bottom: 1em;text-align: center;text-decoration:none">
+                <Animate Animation="Animations.FadeDown" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(2.5)">
+
+                    <p style="line-height:0;margin-top:-2.5em">למה קיבלת את הציון הזה?</p>
+                    <span class="icon-arrows-2-icon showFeed" style="color: var(--textC); font-size:24pt;"></span>
+                </Animate>
+            </a>
+        }
+        <p>@message</p>
+        <button class="card-icon btn-primary pdf" style="background-image: linear-gradient(90deg, #5346A3 0%, #321C99 73.39%);position: absolute;left: 1em;bottom: 1em;" @onclick="pdf"><span class="icon-pdf-icon" style="color:var(--white)"></span></button>
+    </div>
+</Animate>
+@if (loadFeedback)
+{
+<Animate Animation="Animations.FadeIn" AnchorPlacement="center" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(0.25)">
+    <div class="d-flex" id="myFeed" style="width: 100%; gap: 1em; align-items: center; justify-content: center;margin-right:0.5em ">
+        <button class="inconBTN rt bigarrow" @onclick="next"><span class="icon-more-left btnIconArrow"></span></button>
+        <div class="carousel bg">
+
+            @if (show == 0)
+            {
+                <Animate Animation="Animations.Fade" AnchorPlacement="center" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(0.15)">
+                    <div>
+                        <h3 style="align-self:flex-start; text-align:center;margin-bottom: 1em;">קול ודיבור</h3>
+                        <div class="d-flex" style="flex-direction:row">
+                            <div class="d-flex" id="VoiceCaru" style="margin: auto;">
+                                <div style="max-width: fit-content;margin: 0 auto;">
+                                    <h4 style="margin-top:0em">
+                                        הציון שלך על שימוש בקול הוא:
+                                    </h4>
+                                    <ScoreCircle myid="voiceScore" width="18em" goldCir="7" lineWidth="10" score="@score.Voicemeasure.score" />
+                                </div>
+                                <div class="d-flex">
+                                    <div class="d-flex" style="flex-direction: column; height: 24em; justify-content: space-around;">
+                                        <h4>
+                                            מרכיבי הציון:
+                                        </h4>
+                                        @if (@score.PausesMeasure.score != -1)
+                                        {
+                                            <RangeBar Range="@score.PausesMeasure.myrange" score="@score.PausesMeasure.score" place="@score.PausesMeasure.pos" width="22em" myFeedback="@score.PausesMeasure.theFeedBack"></RangeBar>
+                                        }
+                                        @if (@score.QuietMeasure.score != -1)
+                                        {
+                                            List<double> qr = new List<double>() { 0.87, 1.4, 100 };
+                                            <RangeBar RangeD="@qr" score="@score.QuietMeasure.score" place="@score.QuietMeasure.pos" width="22em" myFeedback="@score.QuietMeasure.theFeedBack"></RangeBar>
+                                        }
+                                        @if (@score.PitchMeasure.score != -1)
+                                        {
+                                            <RangeBar RangeD="@score.PitchMeasure.myrangeD" score="@score.PitchMeasure.score" place="@score.PitchMeasure.posD" width="22em" myFeedback="@score.PitchMeasure.theFeedBack"></RangeBar>
+                                        }
+                                        @if (@score.VolMeasure.score != -1)
+                                        {
+                                            <RangeBar RangeD="@score.VolMeasure.myrangeD" score="@score.VolMeasure.score" place="@score.VolMeasure.posD" width="22em" myFeedback="@score.VolMeasure.theFeedBack"></RangeBar>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </Animate>
+
+            }
+
+            @if (show == 1)
+
+            {
+                <Animate Animation="Animations.Fade" AnchorPlacement="center" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(0.15)">
+
+                    <h3 style="align-self:flex-start; text-align:center;margin-bottom: 1em;">תנועה</h3>
+                    <div class="d-flex twodiv" id="MoveDiv">
+                        <div style="display: flex;flex-direction: column;align-content: center;align-items: center;">
+                            <h4 style="margin-top:0em">
+                                הציון שלך על תנועה במרחב הוא:
+                            </h4>
+                            @if (@score.MoveMeasure.score != -1)
+                            {
+
+                                <ScoreCircle myid="moveScore" width="15em" goldCir="7" lineWidth="10" score="@score.MoveMeasure.score" />
+
+                                <RangeBar Range="@score.MoveMeasure.myrange" score="@score.MoveMeasure.score" place="@score.MoveMeasure.pos" width="20em" myFeedback="@score.MoveMeasure.theFeedBack"></RangeBar>
+                            }
+                            else
+                            {
+                                <InvalidScore size="13em" fontsize="6em" mar="1.3em"></InvalidScore>
+                            }
+
+                        </div>
+                        <div style="display: flex;flex-direction: column;align-content: center;align-items: center;">
+                            <h4>
+                                הציון שלך על תנועות ידיים הוא:
+                            </h4>
+                            @if (@score.HandsMeasure.score != -1)
+                            {
+                                <ScoreCircle myid="handsScore" width="15em" goldCir="7" lineWidth="10" score="@score.HandsMeasure.score" />
+                                <RangeBar Range="@score.HandsMeasure.myrange" score="@score.HandsMeasure.score" place="@score.HandsMeasure.pos" width="20em" myFeedback="@score.HandsMeasure.theFeedBack"></RangeBar>
+
+                            }
+                            else
+                            {
+                                <InvalidScore size="13em" fontsize="6em" mar="1.3em"></InvalidScore>
+                                <p>לא התקבל מידע על תנועות ידיים</p>
+                            }
+                        </div>
+                    </div>
+
+                </Animate>
+            }
+            @if (show == 2)
+            {
+                <Animate Animation="Animations.Fade" AnchorPlacement="center" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(0.15)">
+
+                    <h3 style="align-self:flex-start; text-align:center;margin-bottom: 1em;">מבט</h3>
+                    <div class="d-flex twodiv">
+                        <div style="display: flex;flex-direction: column;align-content: center;align-items: center;">
+                            <h4 style="margin-top:0em">
+                                הציון שלך על כיוון מבט הוא:
+                            </h4>
+                            @if (@score.EyeMeasure.score != -1)
+                            {
+                                <ScoreCircle myid="eyeScore" width="15em" goldCir="7" lineWidth="10" score="@score.Lookmeasure.score" />
+                                <RangeBar Range="@score.EyeMeasure.myrange" score="@score.EyeMeasure.score" place="@score.EyeMeasure.pos" width="20em" myFeedback="@score.EyeMeasure.theFeedBack"></RangeBar>
+
+                            }
+                            else
+                            {
+                                <InvalidScore size="13em" fontsize="6em" mar="1.3em"></InvalidScore>
+                                <p>לא התקבל מידע על כיוון מבט</p>
+
+                            }
+
+                        </div>
+                        <div style="display: flex;flex-direction: column;align-content: center;align-items: center;">
+                            <h4>
+                                לאן הסתכלת במהלך הפרזנטציה?
+                            </h4>
+                            <div style="display: flex;gap: 0.5em;flex-direction: column;">
+                                <div style="display: flex;flex-direction: column;align-content: center;align-items: center;">
+                                    <h5 style="font-size:14pt; font-weight:600; margin: 0em 0 1em 0; text-align:right">כיוון לרוחב החדר</h5>
+                                    <div>
+                                        <RightLeft right="@score.looks.Right" hcenter="@score.looks.Hcenter" left="@score.looks.Left"></RightLeft>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h5 style="font-size:14pt; font-weight:600; margin: 1em auto;text-align:right">כיוון בגובה החדר</h5>
+                                    <LooksUpDown Up="@score.looks.Up" Down="@score.looks.Down" Vcenter="@score.looks.Vcenter" />
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </Animate>
+            }
+
+            @if (show == 3)
+            {
+                <Animate Animation="Animations.Fade" AnchorPlacement="center" Duration="TimeSpan.FromSeconds(0.50)" Delay="TimeSpan.FromSeconds(0.15)">
+                    <h3 style="align-self:flex-start; text-align:center;margin-bottom: 1em;">
+                        איך הרגשת במהלך הפרזנטציה?
+                    </h3>
+                    <div class="d-flex twodiv" style="margin: auto; justify-content: space-evenly;gap:0em">
+                        @if (stressWork)
+                        {
+                            @if (stress != null)
+                            {
+                                <div class="flex-column" style="display: flex;align-items: center;align-content: center;">
+                                    <h4 style="margin-top:0em;">
+                                        רמת ביטחון עצמי:
+                                    </h4>
+
+                                    <div class="bg" id="steDiv">
+                                        <StressChart gsr="stress.allR" time="presentation.arduino.Count"></StressChart>
+                                    </div>
+                                    <div class="row" id="strMin">
+                                        <Calm img="icon-cool-icon" min="@stress.calmTime" mycolor="#9CF097" name="ביטחון"></Calm>
+                                        <Calm img="icon-stress-icon" min="@stress.stressTime" mycolor="#F0CB7F" name="התרגשות"></Calm>
+                                        <Calm img="icon-very-stress-icon" min="@stress.verystressTime" mycolor="#F073BC" name="לחץ"></Calm>
+                                    </div>
+                                </div>
+                                <div class="flex-column d-flex" style="justify-content: space-around;">
+                                    <h4>
+                                        קצב לב:
+                                    </h4>
+                                    @if (stress.heartAvg > 0)
+                                    {
+
+                                        <div class="heartCir">
+                                            <div style="background-color:@firstHeartC"><span class="icon-heart-icon"></span></div>
+                                            <span style="width:15em">
+                                                בממוצע קצב הלב שלך היה @stress.heartAvg פעימות בדקה
+                                            </span>
+                                        </div>
+                                        <div class="heartCir">
+                                            <div style="background-color:@secHeartC"><span class="icon-heart-icon"></span></div>
+                                            <span style="width:15em">
+                                                במשך @stress.heartStress דקות קצב הלב שלך עלה והצביע על לחץ
+                                            </span>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="d-flex flex-column justify-content-center align-content-center align-items-center">
+                                            <InvalidScore size="7em" fontsize="3em" mar="1em"></InvalidScore>
+                                            <p>לא התקבלו נתונים על קצב הלב</p>
+                                        </div>
+                                    }
+                                    <div class="bg" style="width: 20em; margin-top: 3em; display: flex; justify-content: center; align-items: center; padding: 1em; border-radius: 20px;">
+                                        <p style="font-size: 12pt; margin-bottom: 0;">
+                                            <b>
+                                                איך מחושב ביטחון עצמי?
+                                            </b><br />
+                                            הביטחון מחושב בעזרת חישוב של קצב הלב עם מוליכות העור (GSR)- מדד אשר מצביע על שינויים במצבים רגשיים.
+
+                                        </p>
+                                    </div>
+                                </div>
+
+
+                            }
+                        }
+                        else
+                        {
+                            <div style="display:flex;flex-direction:column;gap: 2em;align-items: center;align-content: center;margin-top: 2em;">
+                                <InvalidScore size="13em" fontsize="6em" mar="1.3em"></InvalidScore>
+                                <p>לא התקבלו נתונים על רמת הביטחון</p>
+                            </div>
+                        }
+                    </div>
+                </Animate>
+            }
+
+        <div class="tipBtnHo" style="position:absolute;left:50%;">
+            <div class="popup">
+                @if (show == 0)
+                {
+
+                    <div style="display: flex; flex-direction: column;">
+                        בהדרכה, התוכן מועבר בעיקר דרך הקול ולכן הקול הוא המרכיב החשוב ביותר להעברה טובה של פרזנטציה. <br />
+                        דיבור איטי, חלש או מונוטוני יכול להיות משעמם מאוד ולגרום לקהל שלך לאבד את הקשב. גם דיבור מהיר או חזק מדי יכול לתת תחושה לא נעימה, של לחץ ואיום. <br />
+                        שימוש נכון בקול סוחף את הקהל, עוזר להבנה
+                        ובעיקר גורם לכך שפשוט יהיה כיף להקשיב לך.<br />
+                        <a href="./Tips#Voice" class="tipA">אז איך להשתמש נכון בקול?</a>
+                    </div>
+                }
+                @if (show == 1)
+                {
+
+            <div style="display: flex; flex-direction: column;">
+                העין שלנו נמשכת לתנועה, התנועה תעזור לך לגרום לקהל להתמקד בך בזמן הפרזנטציה ולהקשיב לך יותר. <br />
+                בנוסף, תנועות הידיים יכולות לעזור בהמחשה של התוכן ושל מושגים. <br />
+                דרך תנועות הידיים ניתן לעזור להבנת תוכן ורעיונות שקשה להסביר במילים.
+                <a href="./Tips#Move" class="tipA">אז איך ליצור תנועה נכונה?</a>
+            </div>
+                }  
+                @if (show == 2)
+                {
+
+            <div style="display: flex; flex-direction: column;">
+                קשר עין יוצר תחושה של יחס אישי ומגייס את הקהל להקשיב לפרזנטציה.<br />
+                ניתן לקבל המון מידע ממראה הקהל ולהבין האם הקהל משועמם, עייף או צריך הסבר נוסף.
+                <a href="./Tips#Look" class="tipA">אז איך כדאי להסתכל לקהל?</a>
+            </div>
+                }  
+                @if (show == 3)
+                {
+
+            <div style="display: flex; flex-direction: column;">
+                קודם כל כי לא כיף לעמוד על במה ולרעוד. <br />
+                מעבר לכך, ביטחון עצמי יוצר תחושה של בקיאות וסמכות ויגרום לקהל להאמין לך ולהאמין בערך של התוכן המועבר. 
+                הבעת חוסר ביטחון תגרום לחוסר אמון ולחוסר רצון להקשיב לך.<br />
+                לחץ וחוסר ביטחון יפריעו לך להעביר את הפרזנטציה בצורה טובה.
+
+                <a href="./Tips#Con" class="tipA">אז איך להפגין ביטחון עצמי?</a>
+            </div>
+                }
+                <div class="spike"></div>
+            </div>
+
+            @*style="position: absolute;left: 50%;bottom: 2em;transform: translateX(-50%);"*@
+            <a class="btn-primary goldBtn centerObject moreread tipcard" style="width: 8em;" href="@links[show]">למה זה חשוב?</a>
+        </div>
+        </div>
+
+
+        <button class="inconBTN lt bigarrow" @onclick="pre"><span class="icon-more-right btnIconArrow"></span></button>
+    </div>
+    <div class="dots">
+        <a href="./Feedback#myFeed" class="inconBTN lt" style="text-decoration: none; transform: translateY(-25%) translateX(10%);" @onclick="pre"><span class="icon-more-right btnIconArrow" style="font-size: 18pt;"></span></a>
+
+
+        @for (int i = 0; i < 4; i++)
+        {
+            int x = i;
+            if (i == show)
+            {
+                <a href="./Feedback#myFeed" class="thisD" @onclick="@(() => show=x)"></a>
+            }
+            else
+            {
+                <a href="./Feedback#myFeed" class="NothisD" @onclick="@(() => show=x)"></a>
+            }
+
+        }
+        <a href="./Feedback#myFeed" class="inconBTN rt" style="text-decoration: none; transform: translateY(-25%) translateX(45%);" @onclick="next"><span class="icon-more-left btnIconArrow" style="font-size: 18pt;"></span></a>
+
+    </div>
+
+
+</Animate>
+    <Animate Animation="Animations.Fade" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(0.5)">
+        <HighScore allScore="allScore" fiveLastScores="fiveLastScores" high="@high.myscore" progress="@progress"></HighScore>
+    </Animate>
+
+    <button @onclick="pdf" class="btn-primary goldBtn border-0 pdf" style="margin:3em auto">ייצוא משוב לPDF</button>
+
+    <AnchorNavigation />
+}
+@code {
+    int show = 0;
+    string hi = "hi";
+    string showCaruosel = "transform: translateX(0em);";
+    string scoreid = "";
+    LogInData user;
+    string message = "";
+    bool loadFeedback = false;
+    Presentation presentation = new Presentation();
+    int myscore = 0;
+    List<Measure> allscores = new List<Measure>();
+    StressM stress;
+    Score score = new Score();
+    List<int> fiveLastScores = new List<int>();
+    Score high;
+    List<Measure> allScore = new List<Measure>();
+    string progress = "";
+    bool stressWork = false;
+    string firstHeartC = "";
+    string secHeartC = "";
+    bool back = false;
+    string link = "./Tip";
+    int pcount;
+    List<string> links = new List<string>() { "./Tips#Voice", "./Tips#Move", "./Tips#Look", "./Tips#Con" };
+    protected override async Task OnInitializedAsync()
+    {
+        user = sessionStorage.GetItem<LogInData>("user");
+        if (user == null)
+            navigat.NavigateTo("./LogIn");
+        else
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("login");
+            }
+            catch { }
+            show = sessionStorage.GetItem<int>("show");
+
+            scoreid = "score" + user.ID.ToString();
+            string info = sessionStorage.GetItem<string>("myP");
+            var getPresentation = await Http.GetAsync("api/FireBase/Presentation/u" + user.ID.ToString() + "/" + info);
+            try
+            {
+                presentation = await getPresentation.Content.ReadFromJsonAsync<Presentation>();
+            }
+            catch
+            {
+                message = "קרתה תקלה";
+            }
+
+            if (presentation == null)
+            {
+                navigat.NavigateTo("./MainPage");
+
+            }
+            else
+            {
+                sessionStorage.SetItem("gototip", "./Feedback#myFeed");
+                score.presentation = presentation;
+
+                try
+                {
+                    score.divideToMeasure();
+                    myscore = score.myscore;
+                    if (myscore > 0)
+                    {
+                        allscores = score.getAllScores();
+                        score.getAllFeedback();
+
+                        if (presentation.arduino.Count > 1)
+                        {
+                            try
+                            {
+                                if (presentation.arduino.Count > 1)
+                                {
+                                    stress = new StressM();
+                                    stress.calcS(presentation.arduino);
+                                    if (stress.heartAvg < 90)
+                                        firstHeartC = "var(--green)";
+                                    else if (stress.heartAvg < 100)
+                                        firstHeartC = "var(--gold)";
+                                    else
+                                        firstHeartC = "var(--red)";
+                                    if (stress.heartStress == 0)
+                                        secHeartC = "var(--green)";
+                                    else if (stress.heartStress < (presentation.arduino.Count - 1) / 2)
+                                        secHeartC = "var(--gold)";
+                                    else
+                                        secHeartC = "var(--red)";
+
+                                    stressWork = true;
+                                }
+                                else
+                                {
+                                    stressWork = false;
+                                }
+
+                            }
+                            catch
+                            {
+                                stressWork = false;
+
+                            }
+                        }
+                        pcount = sessionStorage.GetItem<int>("pcount");
+                        NewPinfo best;
+                        if (pcount > 1)
+                        {
+                            fiveLastScores = sessionStorage.GetItem<List<int>>("fiveLast");
+
+                            best = sessionStorage.GetItem<NewPinfo>("best");
+                        }
+                        else
+                        {
+                            fiveLastScores = new List<int>();
+                            best = new NewPinfo()
+                            {
+                                Hands = -1, Look = -1, Move = -1, Voice = -1, Score = -1
+                            };
+                        }
+                        high = new Score();
+                        high.Lookmeasure = new Measure() { score = (int)Math.Round(best.Look), link = "#", Mname = "שינוי כיוון מבט", Micon = "icon-watch-icon", num = 2 };
+                        high.MoveMeasure = new Measure() { score = (int)Math.Round(best.Move), link = "#", Mname = "תנועה בחלל", Micon = "icon-foot-icon", num = 1 };
+                        high.HandsMeasure = new Measure() { score = (int)Math.Round(best.Hands), link = "#", Mname = "תנועות ידיים", Micon = "icon-hans-icon", num = 1 };
+                        high.Voicemeasure = new Measure() { score = (int)Math.Round(best.Voice), link = "#", Mname = "שימוש בדיבור", Micon = "icon-mic-icon", num = 0 };
+
+                        bool newPre = sessionStorage.GetItem<bool>("newPre");
+                        if (newPre)
+                        {
+                            if (fiveLastScores == null)
+                                fiveLastScores = new List<int>();
+                            if (fiveLastScores.Count == 5)
+                            {
+                                fiveLastScores.RemoveAt(4);
+                            }
+                            fiveLastScores.Insert(0, score.myscore);
+                  //          fiveLastScores.Reverse();
+                            sessionStorage.SetItem("newPre", false);
+                        }
+                        if (fiveLastScores.Count > 1)
+                        {
+                            int change = fiveLastScores[0] - fiveLastScores[fiveLastScores.Count - 1];
+                            if (change > 0)
+                                progress = "בזמן האחרון השתפרת ב" + Math.Abs(change).ToString() + "%";
+                            if (change < 0)
+                                progress = "בזמן האחרון הייתה ירידה של " + Math.Abs(change).ToString() + "% בציון";
+                        }
+                        if (high != null)
+                        {
+                            if (high.myscore < score.myscore)
+                                high.myscore = score.myscore;
+                            if (high.MoveMeasure.score < score.MoveMeasure.score)
+                                high.MoveMeasure.score = score.MoveMeasure.score;
+                            if (high.Lookmeasure.score < score.Lookmeasure.score)
+                                high.Lookmeasure.score = score.Lookmeasure.score;
+                            if (high.Voicemeasure.score < score.Voicemeasure.score)
+                                high.Voicemeasure.score = score.Voicemeasure.score;
+                            if (high.HandsMeasure.score < score.HandsMeasure.score)
+                                high.HandsMeasure.score = score.HandsMeasure.score;
+                        }
+                        else
+                        {
+                            high = score;
+                        }
+                        allScore.Add(high.Voicemeasure);
+                        allScore.Add(high.Lookmeasure);
+                        allScore.Add(high.HandsMeasure);
+                        allScore.Add(high.MoveMeasure);
+
+                        best.Look = high.Lookmeasure.score;
+                        best.Voice = high.Voicemeasure.score;
+                        best.Move = high.MoveMeasure.score;
+                        best.Hands = high.HandsMeasure.score;
+                        sessionStorage.SetItem("best", best);
+                        sessionStorage.SetItem("fiveLast", fiveLastScores);
+
+
+                        loadFeedback = true;
+
+                    }
+                    else
+                    {
+                        message = "בעיה בחישוב הנתונים";
+                        back = true;
+
+                    }
+                }
+
+                catch
+                {
+                    message = "בעיה בחישוב הנתונים";
+                    back = true;
+                }
+            }
+        }
+
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("stopS");
+        }
+        catch { }
+    }
+
+    protected async Task pdf()
+    {
+        sessionStorage.SetItem("pres", presentation);
+        sessionStorage.SetItem("user", user);
+        sessionStorage.SetItem("url", "./Feedback");
+        navigat.NavigateTo("./Pdf/"+ presentation.info.ID.ToString());
+    }
+
+    protected private void go(int where)
+    {
+        show = where;
+        sessionStorage.SetItem("show", show);
+        navigat.NavigateTo("./Feedback#myFeed");
+    }
+
+    protected private void next()
+    {
+
+        show++;
+        if (show == 4)
+            show = 0;
+        switch (show)
+        {
+            case 0:
+                showCaruosel = "transform: translateX(0em);transition: 1s all linear;";
+                break;
+            case 1:
+                showCaruosel = "transform: translateX(-72em);transition: 1s all linear;";
+
+                break;
+            case 2:
+                showCaruosel = "transform: translateX(-144em);transition: 1s all linear;";
+                break;
+        }
+        sessionStorage.SetItem("show", show);
+
+
+    }
+    protected private void pre()
+    {
+        show--;
+        if (show == -1)
+            show = 3;
+        switch (show)
+        {
+            case 0:
+                showCaruosel = "transform: translateX(0em);";
+                break;
+            case 1:
+                showCaruosel = "transform: translateX(-72em);";
+                break;
+            case 2:
+                showCaruosel = "transform: translateX(-144em);";
+                break;
+        }
+        sessionStorage.SetItem("show", show);
+
+
+    }
+
+
+}

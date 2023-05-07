@@ -1,0 +1,24 @@
+﻿<div >
+    <div class="card tip card-tip">
+        <div style="background-color: var(--gold)">
+           <span class="@imgsrc" style="font-size:3em; color:var(--white)"></span>
+        </div>
+        <div class="thetip">
+            <p>@tip</p>
+            <a href=@url class="btn-primary border-0 goldBtn tipcard " style="color:var(--textC);">למה זה חשוב?</a>
+            
+        </div>
+    </div>
+</div>
+
+
+
+
+@code {
+    [Parameter]
+    public string tip { get; set; }
+    [Parameter]
+    public string imgsrc { get; set; }
+    [Parameter]
+    public string url { get; set; }
+}

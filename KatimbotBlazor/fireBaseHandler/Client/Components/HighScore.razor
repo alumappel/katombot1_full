@@ -1,0 +1,50 @@
+﻿@using fireBaseHandler.Shared.Entities
+<div class="strip" style="margin-top:3em">
+    <div class="d-flex flex-column" style=" width: 100%; margin-right: -2%;padding: 0 10%;">
+        <h4 style="margin-top: 2em;">ההתקדמות שלך:</h4>
+        <div id="highScoreDiv" class="d-flex align-items-stretch justify-content-between align-content-center">
+            <div class="d-flex flex-column align-items-center align-content-center ">
+                <h5 class="align-self-start" style="margin-bottom: -3%; margin-top: 6%; text-align: right;">השיא שלך:</h5>
+                <ScoreCircle myid="highScore" width="13em" goldCir="8" lineWidth="10" score="@high" />
+            </div>
+            @if (fiveLastScores.Count > 1)
+            {
+                <div>
+                    <h5 style="text-align: right; text-align: right; margin: 3%;">@progress</h5>
+                    <div class="bg chart">
+                        <LineChart width="20em" height="8em" nums="fiveLastScores" id="chartMainPage"></LineChart>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="row justify-content-between" style="padding:2%">
+            @foreach (Measure m in allScore)
+            {
+                <div class="d-flex flex-column">
+                    <h6 class="align-self-center">@m.Mname</h6>
+                    @if (m.score != -1)
+                    {
+                        <ScoreCircle myid="@m.Micon" width="8em" goldCir="6" lineWidth="6" score="@m.score" />
+                    }
+                    else
+                    {
+                        <InvalidScore size="8em" fontsize="4em"></InvalidScore>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+
+@code {
+    [Parameter]
+    public List <int> fiveLastScores { get; set; }
+    [Parameter]
+    public string progress { get; set; }
+    [Parameter]
+    public int high { get; set; }
+    [Parameter]
+    public List <Measure> allScore { get; set; }
+}

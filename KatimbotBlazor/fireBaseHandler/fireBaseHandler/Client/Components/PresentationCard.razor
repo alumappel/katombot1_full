@@ -1,0 +1,22 @@
+﻿
+<div class="card col-10 col-lg-2 m-lg-1 mb-2 mt-2 col-md-3 m-md-1 border-0" style="width: 12rem; margin-right:1%">
+    <div class="card-body">
+        <p>@pNum</p>
+        <h5 class="card-title">@pName</h5>
+        <p class="card-text">@pDate</p>
+        <p class="card-text">@pScore</p>
+        <a href="/Feedback/@pNum" class="btn-primary">צפייה</a>
+    </div>
+</div>
+@code {
+    [Parameter]
+    public int pNum { get; set; }
+    [Parameter]
+    public string pName { get; set; }
+    [Parameter]
+    public string pDate { get; set; }
+    [Parameter]
+    public double pScore { get; set; }
+
+
+}

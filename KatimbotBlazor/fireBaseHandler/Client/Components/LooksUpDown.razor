@@ -1,0 +1,44 @@
+﻿@inject IJSRuntime JSRuntime
+@*<div style="display: flex;align-items: center;">
+        <div class="arc" id="lookup">
+            <p>למעלה: @Up%</p>
+            <p>למרכז: @Vcenter%</p>
+            <p>למטה:@Down%</p>
+        </div>
+        <img src="./images/verticalLook.svg" style="width:4em; margin-right: -1em;height:4em;z-index: 0;" />
+    </div>*@
+<div style="display: flex;align-items: center;">
+    <img src="./images/verticalLook.svg" style="height: 4em; transform: scaleX(-1);" />
+    <div class="flex-column d-flex">
+            <img src="./images/arrowlong.svg" style="width: 2em; transform: scale(-1);" />
+            <img src="./images/arrowshort.svg" style="width: 2em; transform: rotate(90deg); " />
+            <img src="./images/arrowlong.svg" style="width: 2em; transform: scale(-1) rotate(-90deg);" />
+    </div>
+
+    <div class="flex-column d-flex" style="gap: 0.5em; transform: translate(-0.5em, 0.5em);">
+        <p style="font-size:12pt;">@Up% למעלה</p>
+        <p style="font-size:12pt;">@Vcenter% למרכז</p>
+        <p style="font-size:12pt;">@Down% למטה</p>
+    </div>
+</div>
+    @*<div class="flex-column">
+        <div class="row"><span class="icon-arrow-left-icon" style="transform:rotate(90deg)"></span>למעלה: @Up%</div>
+        <div class="row"><span class="icon-eyes-icon"></span>למעלה: @Vcenter%</div>
+        <div class="row"><span class="icon-arrow-left-icon" style="transform:rotate(-90deg)"></span>למטה: @Down%</div>
+    </div>*@
+
+@code {
+    [Parameter]
+    public int Up { get; set; }
+    [Parameter]
+    public int Vcenter { get; set; }
+    [Parameter]
+    public int Down { get; set; }
+
+    //protected override async Task OnAfterRenderAsync(bool firstRender)
+    //{
+    //    await JSRuntime.InvokeVoidAsync("drawPie", "lookup", Up, Vcenter);
+    //}
+
+
+}

@@ -1,0 +1,23 @@
+﻿@inject IJSRuntime JSRuntime
+<div class="d-flex" style="align-items:center; gap: 2em;">
+    <div class="circlescore" id="@myId">@myScore</div>
+    <p style="font-size:12pt; width:20em;">
+                @feedback
+    </p>
+</div>
+
+    @code {
+        [Parameter]
+        public int myScore { get; set; }
+        [Parameter]
+        public string myId { get; set; }
+        [Parameter]
+        public string feedback { get; set; }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("innerscore", myId);
+        }
+
+
+    }

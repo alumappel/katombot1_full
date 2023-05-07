@@ -1,0 +1,30 @@
+﻿@inject IJSRuntime JSRuntime
+
+<div style="display: flex; flex-direction: column; width: fit-content; align-content: center; align-items: center;">
+    <img src="./images/horizantalLook.svg" style="width: 3em; transform: translateY(-0.2em); gap: 0.5em;">
+    <div class="row" style="transform:translateY(-0.2em)">
+        <img src="./images/arrowlong.svg" style="width: 2em;" />
+        <img src="./images/arrowshort.svg" style="width: 2em;" />
+        <img src="./images/arrowlong.svg" style="width: 2em; transform: scaleX(-1);" />
+    </div>
+    <div class="numbers" style="font-size:12pt;">
+        @right% ימין | @hcenter% מרכז | @left% שמאל
+    </div>
+</div>
+
+
+    @code {
+        [Parameter]
+        public int right { get; set; }
+        [Parameter]
+        public int hcenter { get; set; }
+        [Parameter]
+        public int left { get; set; }
+
+        //protected override async Task OnAfterRenderAsync(bool firstRender)
+        //{
+        //    await JSRuntime.InvokeVoidAsync("drawPieH", "lookright", right, hcenter);
+        //}
+
+
+    }

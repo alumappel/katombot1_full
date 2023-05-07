@@ -1,0 +1,20 @@
+﻿<div>
+    <div class="card tip card-tip" style="transform: translateY(0px); height: 95%; box-shadow: 0px 8px 20px rgba(87, 71, 164, 0.10); ">
+        <div style="background-color: var(--gold); height: auto; padding: 0.5em 0em 3em 0em; ">
+            <span class="@imgsrc" style="font-size:3em; color:var(--white)"></span>
+        </div>
+        <div class="thetip" style="height: 100%; margin-top: -3em; min-height: 8em;">
+            <p style=" padding: 0 0.5em;">@tip</p>
+        </div>
+    </div>
+</div>
+
+
+
+
+@code {
+    [Parameter]
+    public string tip { get; set; }
+    [Parameter]
+    public string imgsrc { get; set; }
+}

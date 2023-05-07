@@ -1,0 +1,227 @@
+﻿@page "/LogIn"
+
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Threading.Tasks
+@using fireBaseHandler.Shared.Entities;
+@using fireBaseHandler.Client.Components
+@inject IJSRuntime JSRuntime
+@inject NavigationManager navigat
+@inject HttpClient Http
+
+@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+@using fireBaseHandler.Client.Services
+@*@inject IsLog logged*@
+@inject Services.IsLog logged
+
+
+<Animate Animation="Animations.FadeUp" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(0.5)">
+
+    <div class="form-div bg d-flex justify-content-center align-items-center flex-column m-auto mt-5" style="width: 23em; border-radius:1.5em;">
+
+        @if (!forgot)
+        {
+            <EditForm Model="@myUser" OnValidSubmit="FormSubmit">
+                <span class="icon-profile-icon" style="font-size:7em; text-shadow:var(--shadow); color: var(--purple);"></span>
+                <DataAnnotationsValidator  />
+                <label for="mail">מייל</label>
+                <InputText id="mail" @bind-Value="@myUser.Mail" class="inputTxt border-0" />
+                <ValidationMessage For="@(() => myUser.Mail)"   />
+                <br />
+                <label for="password">סיסמא</label>
+                <InputText id="password" type="password" @bind-Value="@myUser.Password" class="inputTxt border-0" />
+                <ValidationMessage For="@(() => myUser.Password)"   />
+                <br />
+                <span @onclick="forgetP" class="link">שכחת סיסמא?</span>
+                <br />
+                <div class="d-flex" style="flex-direction:row !important">
+                    <input type="Submit" Value="כניסה" class="btn-primary centerObject border-0" />
+                    <button @onclick="signUp" class="btn-primary centerObject  border-0 goldBtn" style="color: var(--textC)">הרשמה</button>
+                </div>
+            </EditForm>
+            @if (message != "")
+            {
+            <p style="margin-top: 1em; margin-bottom: 0;font-size:12pt;">@message</p>
+                }
+            }
+        @if (forgot)
+        {
+            <a @onclick="closeF" class="icon-x-icon return" style="text-decoration: none; color: var(--textC)"></a>
+            <EditForm Model="@forget" OnValidSubmit="send" OnInvalidSubmit="Invalid">
+                <DataAnnotationsValidator  />
+                <h4>שכחת את הסיסמא?</h4>
+                <label for="MyMail">מה המייל שלך?</label>
+                <InputText id="MyMail" class="inputTxt border-0" @bind-Value="@forget.Mail"></InputText>
+                <ValidationMessage For="@(() => forget.Mail)"   />
+                <input type="Submit" Value="שחזור סיסמא" class="btn-primary centerObject border-0" style="width: max-content; padding: 0 4%; margin: 1.5em auto 0 auto" />
+
+            </EditForm>   
+           @if (message != "")
+           {
+            <p style="transform: translateY(1em); font-size:12pt">
+        @message 
+            @if (message == "לא הצלחנו למצוא אותך, ")
+            {
+                <a href="./SignUp" style="color:var(--textC);text-decoration:underline">הרשמה</a>
+            }
+            
+            
+            </p>           
+            }   
+            }
+        @if (load)
+        {
+            <Loading></Loading>
+        }
+
+
+    </div>
+
+</Animate>
+
+@code {
+    bool load = false;
+    string message = "";
+    LogInData myUser = new LogInData();
+    bool show = true;
+    bool forgot = false;
+    string mail = "";
+    LogInData forget = new LogInData() { Password="error" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = sessionStorage.GetItem<LogInData>("user");
+        if (user != null)
+        {
+            navigat.NavigateTo("./MainPage");
+        }
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("stopS");
+        }
+        catch { }
+
+    }
+    private protected async Task FormSubmit()
+    {
+        string res;
+
+        load = true;
+        var getResponse = await Http.PostAsJsonAsync("api/FireBase/logIn", myUser);
+        Http.DefaultRequestHeaders.ConnectionClose = true;
+
+
+        try
+        {
+            LogInData myuser = new LogInData();
+            myuser = getResponse.Content.ReadFromJsonAsync<LogInData>().Result;
+            await JSRuntime.InvokeVoidAsync("login");
+            sessionStorage.SetItem("user", myuser);
+            sessionStorage.SetItem("isnew", false);
+            logged.isLog = true;
+            navigat.NavigateTo("./MainPage");
+
+        }
+        catch
+        {
+            res = await getResponse.Content.ReadAsStringAsync();
+            message = res;
+            switch (res)
+            {
+                case "wrong password":
+                    message = "סיסמא שגויה";
+                    break;
+                case "problem":
+                    message = "קרתה תקלה";
+                    break;
+                case "no mail":
+                    message = "לא קיים מייל כזה במערכת";
+                    break;
+                default:
+                    message = message;
+                    break;
+
+            }
+
+            load = false;
+
+
+        }
+
+    }
+
+    private void Invalid()
+    {
+
+    }
+    private void closeF()
+    {
+        forgot = false;
+        message = "";
+
+    }
+    private void forgetP()
+    {
+        forgot = true;
+        forget.Mail = myUser.Mail;
+        message = "";
+    }
+    private protected async Task send()
+    {
+
+        load = true;
+        forget.Password = "error";
+        var postResponse = await Http.PostAsJsonAsync("api/FireBase/Mail", forget);
+        LogInData myuser = new LogInData();
+
+        try
+        {
+            myuser = postResponse.Content.ReadFromJsonAsync<LogInData>().Result;
+            load = false;
+            if (postResponse.IsSuccessStatusCode)
+                message = myuser.FirstName + " הסיסמא נשלחה למייל שלך";
+            else
+            {
+                string res = postResponse.Content.ReadAsStringAsync().Result;
+                if (res == "no mail")
+                {
+                    message = "לא הצלחנו למצוא אותך, ";
+
+                }
+                else
+                {
+                    message =  "קרתה תקלה";
+                }
+
+            }
+        }
+        catch
+        {
+            load = false;
+            string res = postResponse.Content.ReadAsStringAsync().Result;
+            if (res == "no mail")
+            {
+                message = "לא הצלחנו למצוא אותך, ";
+
+            }
+            else
+            {
+                message = "קרתה תקלה";
+            }
+
+        }
+
+
+    }
+    private void signUp()
+    {
+        navigat.NavigateTo("./SignUp");
+
+    }
+
+
+}

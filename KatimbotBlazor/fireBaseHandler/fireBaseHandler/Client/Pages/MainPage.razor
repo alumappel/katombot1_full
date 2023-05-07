@@ -1,0 +1,53 @@
+﻿@page "/MainPage"
+@inject HttpClient Http
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Threading.Tasks
+@using fireBaseHandler.Shared.Entities;
+@using fireBaseHandler.Client.Components
+
+<h3>היי!</h3>
+<a href="/Presentation" class="btn-primary centerObject mb-2 mt-2">פרזנטציה חדשה</a>
+@* יצירת כרטיסיות לפי מספר הפרזנטציות שנעשו *@
+
+@if (!cardsLoad)
+{
+
+<div class="d-flex justify-content-center mt-2 mb-2">
+    <div class="lds-default centerObject"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+</div>
+
+}
+<div class="cardrow row mr-lg-2 mr-4">
+    @foreach (PresentationInfo pres in presList)
+    {
+        <PresentationCard pNum=@(presList.IndexOf(pres)+1) pName=@pres.Name pDate=@pres.Date pScore="@pres.Score"/>
+    }
+</div>
+<p>@message</p>
+
+@code {
+    //הגדרת משתנים
+    string message = "";
+    bool cardsLoad = false;
+    List<PresentationInfo> presList = new List<PresentationInfo>();
+    //פונקציה הפועלת מיד בעליית הדף
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            //קבלת כל הפרזנטציות שנעשו
+            var getResponse = await Http.GetAsync("api/FireBase/AllPInfo");
+            Http.DefaultRequestHeaders.ConnectionClose = true;
+
+            presList = getResponse.Content.ReadFromJsonAsync<List<PresentationInfo>>().Result;
+            cardsLoad = true;
+        }
+        catch
+        {
+            //הודעת שגיאה
+            message = "לא הצלחתי למצוא את הפרזנטציות שלך";
+        }
+
+    }
+}

@@ -1,0 +1,144 @@
+﻿@using fireBaseHandler.Shared.Entities
+@inject IJSRuntime JSRuntime
+@inject NavigationManager navigat
+@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+@inject HttpClient Http
+
+<div class="card border-0" style="width: 12em; height:15em;position:absolute;right:calc(@pNum*13em);margin-right:-13em;">
+    <div class="card-body">
+        @if (!del)
+        {
+            int mys = (int)Math.Round(myp.Score);
+            <h5 class="card-title">@pName</h5>
+            <p class="card-text" style="font-size:12pt;text-align:center">@pDate</p>
+            @if (mys > -1)
+            {
+            @*<ScoreCircle myid="@myid" width="6em" score="@mys" lineWidth="5" goldCir="5" />*@
+                <NewScoreCir myid="@myid" score="@mys" width="6em" goldCir="8" lineWidth="6"></NewScoreCir>
+            }
+            @*<StaticScoreCir myid="@myid" width="6em" score="@mys" goldCir="5" lineWidth="5" isBig="true"></StaticScoreCir>*@
+            <button @onclick="whathPres" class="btn-primary">צפייה</button>
+        }
+        else
+        {
+
+
+            @if (lode) {
+            <Loading></Loading>
+            <p>@msg</p>
+            }
+            else
+            {
+                <a id="x" @onclick="closedel" class="icon-x-icon return" style="text-decoration: none; color: var(--textC);transform:scale(0.8);top:0.2em;left:0.2em;"></a>
+                <div class="deldiv">
+                    <h5 style="font-size:14pt;">
+                        למחוק את הפרזנטציה
+                        <b style="color:var(--darkpurple);">@pName</b>?
+                    </h5>
+                    <p style="font-size:12pt;text-align:center">לא ניתן לשחזר פרזנטציה שנמחקה</p>
+                    <div class="card-buttons" style="width:11em;">
+                        <button class="outbtn btn-primary" @onclick="@newDel" style="border: 3px solid var(--purple);">למחוק</button>
+                        <button @onclick="closedel" class="btn-primary">לא למחוק</button>
+                    </div>
+                </div>
+            }
+        }
+        @*<p>@msg</p>*@
+
+    </div>
+    @if (!del)
+    {
+        <div class="card-buttons">
+            <button @onclick="opendel" class="card-icon outdark"><span class="icon-trash-icon"></span></button>
+            <button class="card-icon btn-primary pdf" style="background-image: linear-gradient(90deg, #5346A3 0%, #321C99 73.39%); " @onclick="@(() => pdf(myp))"><span class="icon-pdf-icon" style="color:var(--white)"></span></button>
+        </div>
+
+    }
+
+</div>
+
+
+@code {
+    [Parameter]
+    public int pNum { get; set; }
+    [Parameter]
+    public string pName { get; set; }
+    [Parameter]
+    public string pDate { get; set; }
+    [Parameter]
+    public double pScore { get; set; }
+    [Parameter]
+    public NewPinfo myp { get; set; }
+    [Parameter]
+    public LogInData user { get; set; }
+
+    bool del = false;
+    bool lode = false;
+    string msg = "";
+    [Parameter]
+    public EventCallback<NewPinfo> deleteme { get; set; }
+
+    [Parameter]
+    public EventCallback <List<NewPinfo>> allPres { get; set; }
+
+
+    int myscore = 0;
+
+    string myid = "p";
+    protected override async Task OnInitializedAsync()
+    {
+        myscore = (int)Math.Round(myp.Score);
+        myid = "p" + myp.ID.ToString();
+
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        //await JSRuntime.InvokeVoidAsync("drawc",myid,5,5);
+    }
+    protected void whathPres()
+    {
+        sessionStorage.SetItem("myP", myp.ID.ToString());
+        navigat.NavigateTo("./Feedback");
+    }
+    protected void closedel()
+    {
+        del = false;
+    }
+    protected void opendel()
+    {
+        del = true;
+    }
+    protected async void delete()
+    {
+        await deleteme.InvokeAsync(myp);
+        del = false;
+
+    }
+
+    protected async Task newDel()
+    {
+        lode = true;
+        var getResponse = await Http.GetAsync("api/FireBase/DelEmpty/u" + user.ID.ToString() + "/" + myp.ID.ToString());
+        try {
+            List<NewPinfo> all = getResponse.Content.ReadFromJsonAsync<List<NewPinfo>>().Result;
+            all.Reverse();
+            await allPres.InvokeAsync(all);
+            lode = false;
+            del = false;
+        }
+        catch
+        {
+            msg = "תקלה";
+        }
+
+    }
+    protected async Task pdf(NewPinfo p)
+    {
+
+        sessionStorage.SetItem("pres", p);
+        sessionStorage.SetItem("user", user);
+        sessionStorage.SetItem("url", "./MainPage");
+        navigat.NavigateTo("./Pdf/" + p.ID.ToString());
+    }
+}
+

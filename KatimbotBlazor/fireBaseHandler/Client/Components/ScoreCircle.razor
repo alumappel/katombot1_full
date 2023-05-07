@@ -1,0 +1,47 @@
+﻿@inject IJSRuntime JSRuntime
+    <div style="position:relative;">
+        <div class="bgcir bg" style="width:@cir; height:@cir;margin:@mg"></div>
+        <div id=@myid class="circleGraphic" style="width:@width;height:@width;">@score
+        </div>
+    </div>
+    @code {
+
+            [Parameter]
+            public string myid { get; set; }
+            [Parameter]
+            public int score { get; set; }
+            [Parameter]
+            public string width { get; set; }
+            [Parameter]
+            public int lineWidth { get; set; }
+            [Parameter]
+            public int goldCir { get; set; }
+            [Parameter]
+            public bool isBig { get; set; }
+
+            double cirwidth = 0;
+            double margin = 0;
+            string cir = "";
+            string mg = "";
+        protected override async Task OnInitializedAsync()
+        {
+            int em = width.Length - 2;
+            string wi = width.Substring( 0, em);
+            double w = Convert.ToDouble(wi);
+            cirwidth = w*0.8;
+            margin = w * 0.1;
+            cir = cirwidth.ToString() + "em";
+            mg = margin.ToString() + "em";
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (!isBig)
+                isBig = false;
+
+            await JSRuntime.InvokeVoidAsync("drawc", myid, lineWidth, goldCir, isBig);
+            
+        }
+
+
+    }
